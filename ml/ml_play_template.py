@@ -1,10 +1,7 @@
 import random
-
-
 class MLPlay:
-    def __init__(self, ai_name:str,*args, **kwargs):
-        print(f"Initial {__file__} script with ai_name:{ai_name}")
-
+    def __init__(self):
+        print("Initial ml script")
 
     def update(self, scene_info: dict, *args, **kwargs):
         """

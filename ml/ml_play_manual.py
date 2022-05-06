@@ -1,12 +1,12 @@
+import random
 import pygame
 
 
 class MLPlay:
-    def __init__(self, ai_name: str, *args, **kwargs):
-        self.ai_name = ai_name
-        print(f"Initial {__file__} script with ai_name:{ai_name}")
+    def __init__(self):
+        print("Initial ml script")
 
-    def update(self, scene_info: dict, keyboard: list = [], *args, **kwargs):
+    def update(self, scene_info: dict, keyboard:list=[], *args, **kwargs):
         """
         Generate the command according to the received scene information
         """
@@ -27,6 +27,8 @@ class MLPlay:
             actions.append("NONE")
 
         return actions
+
+
 
     def reset(self):
         """
