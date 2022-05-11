@@ -18,8 +18,8 @@ class EasyGame(PaiaGame):
     This is a Interface of a game
     """
 
-    def __init__(self, time_to_play, total_point_count, score, color):
-        super().__init__()
+    def __init__(self, time_to_play, total_point_count, score, color, *args, **kwargs):
+        super().__init__(user_num=1)
         self.game_result_state = GameResultState.FAIL
         self.scene = Scene(width=800, height=600, color="#4FC3F7", bias_x=0, bias_y=0)
         print(color)
@@ -59,7 +59,7 @@ class EasyGame(PaiaGame):
         if not self.is_running:
             return "QUIT"
 
-    def game_to_player_data(self):
+    def get_data_from_game_to_player(self):
         """
         send something to game AI
         we could send different data to different ai
@@ -174,4 +174,3 @@ class EasyGame(PaiaGame):
             # add food to group
             food = Food(self.foods)
         pass
-
