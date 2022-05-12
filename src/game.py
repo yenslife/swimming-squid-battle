@@ -3,9 +3,9 @@ from os import path
 
 import pygame
 
-from mlgame.argument.model import AI_NAMES
 from mlgame.gamedev.paia_game import PaiaGame, GameResultState, GameStatus
-from mlgame.tests.test_decorator import check_game_progress, check_game_result
+from mlgame.utils.enum import get_ai_name
+from mlgame.view.decorator import check_game_progress, check_game_result
 from mlgame.view.view_model import create_text_view_data, create_asset_init_data, create_image_view_data, Scene, \
     create_scene_progress_data
 from .game_object import Ball, Food
@@ -35,7 +35,7 @@ class EasyGame(PaiaGame):
 
     def update(self, commands):
         # handle command
-        ai_1p_cmd = commands[AI_NAMES[0]]
+        ai_1p_cmd = commands[get_ai_name(0)]
         if ai_1p_cmd is not None:
             action = ai_1p_cmd[0]
         else:
@@ -77,7 +77,7 @@ class EasyGame(PaiaGame):
             "status": self.get_game_status()
         }
 
-        to_players_data[AI_NAMES[0]] = data_to_1p
+        to_players_data[get_ai_name(0)] = data_to_1p
         # should be equal to config. GAME_SETUP["ml_clients"][0]["name"]
 
         return to_players_data
@@ -143,7 +143,7 @@ class EasyGame(PaiaGame):
                 "state": self.game_result_state,
                 "attachment": [
                     {
-                        "player": AI_NAMES[0],
+                        "player": get_ai_name(0),
                         "rank": 1,
                         "score": self.score
                     }
@@ -167,7 +167,7 @@ class EasyGame(PaiaGame):
             cmd_1p.append("RIGHT")
         else:
             cmd_1p.append("NONE")
-        return {AI_NAMES[0]: cmd_1p}
+        return {get_ai_name(0): cmd_1p}
 
     def _create_foods(self, count: int = 5):
         for i in range(count):
