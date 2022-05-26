@@ -1,8 +1,9 @@
-
+import sys
 from os import path
+sys.path.append(path.dirname(__file__))
 
-from mlgame.utils.parse_config import read_json_file, parse_config
-from .src.game import EasyGame
+from mlgame.argument.tool import read_json_file, parse_config
+from src.game import EasyGame
 
 config_file = path.join(path.dirname(__file__), "game_config.json")
 
@@ -15,6 +16,5 @@ GAME_PARAMS = parse_config(config_data)
 
 GAME_SETUP = {
     "game": EasyGame,
-    "ml_clients": EasyGame.ai_clients(),
     # "dynamic_ml_clients":True
 }

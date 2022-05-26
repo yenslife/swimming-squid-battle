@@ -1,14 +1,14 @@
 # **Easy Game**
-<img src="./asset/logo.svg" alt="logo" width="100"/> 
 
 [comment]: <> (![python]&#40;https://img.shields.io/pypi/pyversions/pygame&#41;)
+![pygame](https://img.shields.io/badge/release-2.0.0beta-red.svg)
 
-![arkanoid](https://img.shields.io/github/v/tag/PAIA-Playful-AI-Arena/arkanoid)
 [![Python 3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/release/python-390/)
-[![MLGame](https://img.shields.io/badge/MLGame-9.4.0-<COLOR>.svg)](https://github.com/PAIA-Playful-AI-Arena/MLGame)
+[![MLGame](https://img.shields.io/badge/MLGame-9.5.1-<COLOR>.svg)](https://github.com/PAIA-Playful-AI-Arena/MLGame)
 [![pygame](https://img.shields.io/badge/pygame-2.0.1-<COLOR>.svg)](https://github.com/pygame/pygame/releases/tag/2.0.1)
----
-這是一個吃東西小遊戲，除了讓你熟習所有基本操作，也是 PAIA 的遊戲教學範例
+
+
+這是一個吃東西小遊戲，也是 PAIA 的遊戲教學範例
 
 ![https://github.com/PAIA-Playful-AI-Arena/MLGame/raw/master/games/easy_game/asset/easy_game.gif](https://github.com/PAIA-Playful-AI-Arena/MLGame/raw/master/games/easy_game/asset/easy_game.gif)
 
