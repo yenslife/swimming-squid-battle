@@ -3,9 +3,8 @@ from os import path
 
 import pygame
 
-from mlgame.argument.model import AI_NAMES
-from mlgame.gamedev.paia_game import PaiaGame, GameResultState, GameStatus
-from mlgame.tests.test_decorator import check_game_progress, check_game_result
+from mlgame.gamedev.game_interface import PaiaGame, GameResultState, GameStatus
+from mlgame.view.test_decorator import check_game_progress, check_game_result
 from mlgame.view.view_model import create_text_view_data, create_asset_init_data, create_image_view_data, Scene, \
     create_scene_progress_data
 from .game_object import Ball, Food
@@ -35,13 +34,9 @@ class EasyGame(PaiaGame):
 
     def update(self, commands):
         # handle command
-        ai_1p_cmd = commands[AI_NAMES[0]]
-        if ai_1p_cmd is not None:
-            action = ai_1p_cmd[0]
-        else:
-            action = "NONE"
+        ai_1p_cmd = commands[self.ai_clients()[0]["name"]][0]
         # print(ai_1p_cmd)
-        self.ball.update(action)
+        self.ball.update(ai_1p_cmd)
 
         # update sprite
         self.foods.update()
@@ -77,7 +72,8 @@ class EasyGame(PaiaGame):
             "status": self.get_game_status()
         }
 
-        to_players_data[AI_NAMES[0]] = data_to_1p
+        for ai_client in self.ai_clients():
+            to_players_data[ai_client['name']] = data_to_1p
         # should be equal to config. GAME_SETUP["ml_clients"][0]["name"]
 
         return to_players_data
@@ -143,7 +139,7 @@ class EasyGame(PaiaGame):
                 "state": self.game_result_state,
                 "attachment": [
                     {
-                        "player": AI_NAMES[0],
+                        "player": self.ai_clients()[0]["name"],
                         "rank": 1,
                         "score": self.score
                     }
@@ -167,7 +163,8 @@ class EasyGame(PaiaGame):
             cmd_1p.append("RIGHT")
         else:
             cmd_1p.append("NONE")
-        return {AI_NAMES[0]: cmd_1p}
+        ai_1p = self.ai_clients()[0]["name"]
+        return {ai_1p: cmd_1p}
 
     def _create_foods(self, count: int = 5):
         for i in range(count):
@@ -175,3 +172,12 @@ class EasyGame(PaiaGame):
             food = Food(self.foods)
         pass
 
+    @staticmethod
+    def ai_clients():
+        """
+        let MLGame know how to parse your ai,
+        you can also use this names to get different cmd and send different data to each ai client
+        """
+        return [
+            {"name": "1P"}
+        ]
