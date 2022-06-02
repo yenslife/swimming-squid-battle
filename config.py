@@ -1,6 +1,7 @@
 import sys
 from os import path
 sys.path.append(path.dirname(__file__))
+# TODO smaller bg
 
 from src.game import EasyGame
 
