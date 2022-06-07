@@ -105,7 +105,9 @@ class EasyGame(PaiaGame):
         """
         # TODO add music or sound
         bg_path = path.join(ASSET_PATH, "img/background.jpg")
-        background = create_asset_init_data("background", 800, 600, bg_path, "url")
+        background = create_asset_init_data(
+            "background", 800, 600, bg_path,
+            github_raw_url="https://raw.githubusercontent.com/PAIA-Playful-AI-Arena/easy_game/main/asset/img/background.jpg")
         scene_init_data = {"scene": self.scene.__dict__,
                            "assets": [
                                background
