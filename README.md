@@ -1,10 +1,9 @@
 # **Easy Game**
 
 [comment]: <> (![python]&#40;https://img.shields.io/pypi/pyversions/pygame&#41;)
-![pygame](https://img.shields.io/badge/release-1.2.1gi-red.svg)
-
+![easy_game](https://img.shields.io/github/v/tag/PAIA-Playful-AI-Arena/easy_game)
 [![Python 3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/release/python-390/)
-[![MLGame](https://img.shields.io/badge/MLGame-9.4.0-<COLOR>.svg)](https://github.com/PAIA-Playful-AI-Arena/MLGame)
+[![MLGame](https://img.shields.io/badge/MLGame->9.5.3-<COLOR>.svg)](https://github.com/PAIA-Playful-AI-Arena/MLGame)
 [![pygame](https://img.shields.io/badge/pygame-2.0.1-<COLOR>.svg)](https://github.com/pygame/pygame/releases/tag/2.0.1)
 
 
@@ -65,11 +64,9 @@ game = EasyGame(time_to_play=1000, total_point_count=10, score=5, color="FF9800"
 ## 使用ＡＩ玩遊戲
 
 ```bash
-# python MLGame.py [options] easy_game [time_to_play] [total_point_count] [score] [color]
-python MLGame.py -i ml_play_template.py easy_game --time_to_play 1200 --total_point_count 15 --score 10 --color FF9800
+# 在easy game中，打開終端機
+python -m mlgame -i ./ml/ml_play_template.py ./ --time_to_play 1200 --total_point_count 15 --score 10 --color FF9800
 ```
-
-遊戲參數依序是[`time_to_play`] [`total_point_count`] [`score`] [`color`]
 
 ## ＡＩ範例
 
