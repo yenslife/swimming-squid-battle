@@ -3,8 +3,9 @@ from os import path
 
 import pygame
 
-from mlgame.gamedev.game_interface import PaiaGame, GameResultState, GameStatus
-from mlgame.view.test_decorator import check_game_progress, check_game_result
+from mlgame.game.paia_game import PaiaGame, GameResultState, GameStatus
+from mlgame.utils.enum import get_ai_name
+from mlgame.view.decorator import check_game_progress, check_game_result
 from mlgame.view.view_model import create_text_view_data, create_asset_init_data, create_image_view_data, Scene, \
     create_scene_progress_data
 from .game_object import Ball, Food
@@ -17,8 +18,8 @@ class EasyGame(PaiaGame):
     This is a Interface of a game
     """
 
-    def __init__(self, time_to_play, total_point_count, score, color):
-        super().__init__()
+    def __init__(self, time_to_play, total_point_count, score, color, *args, **kwargs):
+        super().__init__(user_num=1)
         self.game_result_state = GameResultState.FAIL
         self.scene = Scene(width=800, height=600, color="#4FC3F7", bias_x=0, bias_y=0)
         print(color)
@@ -34,9 +35,13 @@ class EasyGame(PaiaGame):
 
     def update(self, commands):
         # handle command
-        ai_1p_cmd = commands[self.ai_clients()[0]["name"]][0]
+        ai_1p_cmd = commands[get_ai_name(0)]
+        if ai_1p_cmd is not None:
+            action = ai_1p_cmd[0]
+        else:
+            action = "NONE"
         # print(ai_1p_cmd)
-        self.ball.update(ai_1p_cmd)
+        self.ball.update(action)
 
         # update sprite
         self.foods.update()
@@ -54,7 +59,7 @@ class EasyGame(PaiaGame):
         if not self.is_running:
             return "QUIT"
 
-    def game_to_player_data(self):
+    def get_data_from_game_to_player(self):
         """
         send something to game AI
         we could send different data to different ai
@@ -72,8 +77,7 @@ class EasyGame(PaiaGame):
             "status": self.get_game_status()
         }
 
-        for ai_client in self.ai_clients():
-            to_players_data[ai_client['name']] = data_to_1p
+        to_players_data[get_ai_name(0)] = data_to_1p
         # should be equal to config. GAME_SETUP["ml_clients"][0]["name"]
 
         return to_players_data
@@ -101,7 +105,9 @@ class EasyGame(PaiaGame):
         """
         # TODO add music or sound
         bg_path = path.join(ASSET_PATH, "img/background.jpg")
-        background = create_asset_init_data("background", 800, 600, bg_path, "url")
+        background = create_asset_init_data(
+            "background", 800, 600, bg_path,
+            github_raw_url="https://raw.githubusercontent.com/PAIA-Playful-AI-Arena/easy_game/main/asset/img/background.jpg")
         scene_init_data = {"scene": self.scene.__dict__,
                            "assets": [
                                background
@@ -139,7 +145,7 @@ class EasyGame(PaiaGame):
                 "state": self.game_result_state,
                 "attachment": [
                     {
-                        "player": self.ai_clients()[0]["name"],
+                        "player": get_ai_name(0),
                         "rank": 1,
                         "score": self.score
                     }
@@ -163,21 +169,10 @@ class EasyGame(PaiaGame):
             cmd_1p.append("RIGHT")
         else:
             cmd_1p.append("NONE")
-        ai_1p = self.ai_clients()[0]["name"]
-        return {ai_1p: cmd_1p}
+        return {get_ai_name(0): cmd_1p}
 
     def _create_foods(self, count: int = 5):
         for i in range(count):
             # add food to group
             food = Food(self.foods)
         pass
-
-    @staticmethod
-    def ai_clients():
-        """
-        let MLGame know how to parse your ai,
-        you can also use this names to get different cmd and send different data to each ai client
-        """
-        return [
-            {"name": "1P"}
-        ]
