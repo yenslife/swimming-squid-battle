@@ -6,9 +6,9 @@ from mlgame.view.view_model import create_rect_view_data
 
 BALL_VEL = 10.5
 
-BALL_H = 100
+BALL_H = 50
 
-BALL_W = 10
+BALL_W = 50
 
 
 class Ball(pygame.sprite.Sprite):
