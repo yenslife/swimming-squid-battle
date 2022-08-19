@@ -9,7 +9,7 @@
 
 這是一個吃東西小遊戲，也是 PAIA 的遊戲教學範例
 
-![https://github.com/PAIA-Playful-AI-Arena/MLGame/raw/master/games/easy_game/asset/easy_game.gif](https://github.com/PAIA-Playful-AI-Arena/MLGame/raw/master/games/easy_game/asset/easy_game.gif)
+![demo](https://github.com/PAIA-Playful-AI-Arena/easy_game/blob/main/asset/easy_game.gif?raw=true)
 
 ---
 # 基礎介紹
