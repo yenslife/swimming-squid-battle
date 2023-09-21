@@ -22,6 +22,8 @@ class EasyGame(PaiaGame):
         super().__init__(user_num=1)
         self.game_result_state = GameResultState.FAIL
         self.scene = Scene(width=800, height=600, color="#4FC3F7", bias_x=0, bias_y=0)
+        self.total_point_count = total_point_count
+        self.color = color
         print(color)
         self.ball = Ball("#" + color)
         self.foods = pygame.sprite.Group()
@@ -57,7 +59,7 @@ class EasyGame(PaiaGame):
         # self.draw()
 
         if not self.is_running:
-            return "QUIT"
+            return "RESET"
 
     def get_data_from_game_to_player(self):
         """
@@ -93,6 +95,14 @@ class EasyGame(PaiaGame):
         return status
 
     def reset(self):
+        self.score = 0
+        self._begin_time = time.time()
+        self._timer = 0
+        self.frame_count = 0
+        self.ball = Ball("#" + self.color)
+
+        self.foods = pygame.sprite.Group()
+        self._create_foods(self.total_point_count)
         pass
 
     @property
