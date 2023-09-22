@@ -1,24 +1,27 @@
-import random
-
 import pygame.sprite
 
+from games.easy_game.src.enums import FoodTypeEnum
 from mlgame.view.view_model import create_rect_view_data
 
+FOOD_COLOR_MAP = {FoodTypeEnum.GREEN: "#009688",
+                  FoodTypeEnum.RED: "#FF1744"}
+BALL_COLOR = "#FFEB3B"
 BALL_VEL = 10.5
 
-BALL_H = 50
+BALL_H = 30
 
-BALL_W = 50
+BALL_W = 30
 
 
 class Ball(pygame.sprite.Sprite):
-    def __init__(self, color="#FFEB3B"):
+    def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.origin_image = pygame.Surface([BALL_W, BALL_H])
         self.image = self.origin_image
-        self.color = color
+        self.color = BALL_COLOR
         self.rect = self.image.get_rect()
         self.rect.center = (400, 300)
+
 
     def update(self, motion):
         # for motion in motions:
@@ -51,28 +54,25 @@ class Ball(pygame.sprite.Sprite):
 
 
 class Food(pygame.sprite.Sprite):
-    def __init__(self, group):
+    def __init__(self, group, type: FoodTypeEnum):
         pygame.sprite.Sprite.__init__(self, group)
         self.image = pygame.Surface([8, 8])
-        self.color = "#E91E63"
+        self.type = type
+        self.color = FOOD_COLOR_MAP[type]
+
         self.rect = self.image.get_rect()
-        self.rect.centerx = random.randint(0, 800)
-        self.rect.centery = random.randint(0, 600)
         self.angle = 0
 
     def update(self) -> None:
-        self.angle += 10
-        if self.angle > 360:
-            self.angle -= 360
+        pass
 
     @property
     def game_object_data(self):
-        return {"type": "rect",
-                "name": "ball",
-                "x": self.rect.x,
-                "y": self.rect.y,
-                "angle": 0,
-                "width": self.rect.width,
-                "height": self.rect.height,
-                "color": self.color
-                }
+        return create_rect_view_data(
+            "food",
+            self.rect.x,
+            self.rect.y,
+            self.rect.width,
+            self.rect.height,
+            self.color
+        )

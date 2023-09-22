@@ -1,0 +1,10 @@
+{
+  "time_to_play": 1200,
+  "playground_size": [
+    700,
+    600
+  ],
+  "score_to_pass": 25,
+  "green_food_count": 20,
+  "black_food_count": 40
+}
