@@ -8,6 +8,7 @@ from mlgame.utils.enum import get_ai_name
 from mlgame.view.decorator import check_game_progress, check_game_result
 from mlgame.view.view_model import create_text_view_data, create_asset_init_data, create_image_view_data, Scene, \
     create_scene_progress_data
+from .enums import FoodTypeEnum
 from .game_object import Ball, Food
 
 ASSET_PATH = path.join(path.dirname(__file__), "../asset")
@@ -19,21 +20,26 @@ class EasyGame(PaiaGame):
     This is a Interface of a game
     """
 
-    def __init__(self, time_to_play, green_food_count,black_food_count, score, color, *args, **kwargs):
+    def __init__(self, time_to_play, green_food_count, black_food_count, score, color, *args, **kwargs):
         super().__init__(user_num=1)
         self.game_result_state = GameResultState.FAIL
         self.scene = Scene(width=800, height=600, color="#111111", bias_x=0, bias_y=0)
-        self.total_point_count = green_food_count
+        self.green_food_count = green_food_count
+        self.black_food_count = black_food_count
         self.color = color
-        self.ball = Ball("#" + color)
         self.foods = pygame.sprite.Group()
-        self.score = 0
         self.score_to_win = score
-        self._create_foods(self.total_point_count)
-        self._begin_time = time.time()
-        self._frame_count_down = time_to_play
         self.frame_limit = time_to_play
+        self.init_game()
+
+    def init_game(self):
+        self.ball = Ball("#" + self.color)
+        self.foods.empty()
+        self.score = 0
+        self._create_foods(self.green_food_count,FoodTypeEnum.GREEN)
+        self._create_foods(self.black_food_count,FoodTypeEnum.BLACK)
         self.frame_count = 0
+        self._frame_count_down = self.frame_limit
 
     def update(self, commands):
         # handle command
@@ -96,13 +102,8 @@ class EasyGame(PaiaGame):
         return status
 
     def reset(self):
-        self.score = 0
-        self._begin_time = time.time()
-        self._frame_count_down = 0
-        self.frame_count = 0
-        self.ball = Ball("#" + self.color)
-        self.foods = pygame.sprite.Group()
-        self._create_foods(self.total_point_count)
+        self.init_game()
+
         pass
 
     @property
@@ -138,7 +139,8 @@ class EasyGame(PaiaGame):
         game_obj_list.extend(foods_data)
         backgrounds = [create_image_view_data("background", 0, 0, 800, 600)]
         foregrounds = [create_text_view_data(f"Score = {str(self.score)}", 650, 50, "#FF0000", "24px Arial BOLD")]
-        toggle_objs = [create_text_view_data(f"{self._frame_count_down:04d} frame", 650, 100, "#FFAA00", "24px Arial BOLD")]
+        toggle_objs = [
+            create_text_view_data(f"{self._frame_count_down:04d} frame", 650, 100, "#FFAA00", "24px Arial BOLD")]
         scene_progress = create_scene_progress_data(frame=self.frame_count, background=backgrounds,
                                                     object_list=game_obj_list,
                                                     foreground=foregrounds, toggle=toggle_objs)
@@ -181,8 +183,8 @@ class EasyGame(PaiaGame):
             cmd_1p.append("NONE")
         return {get_ai_name(0): cmd_1p}
 
-    def _create_foods(self, count: int = 5):
+    def _create_foods(self, count: int = 5, type: FoodTypeEnum = FoodTypeEnum.GREEN):
         for i in range(count):
             # add food to group
-            food = Food(self.foods)
+            food = Food(self.foods, type)
         pass
