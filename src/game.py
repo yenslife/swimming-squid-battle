@@ -27,7 +27,7 @@ class EasyGame(PaiaGame):
     """
 
     def __init__(
-            self, time_to_play, score_to_pass, green_food_count, black_food_count,
+            self, time_to_play, score_to_pass, green_food_count, red_food_count,
             playground_size: list,
             level: int = -1,
             # level_file,
@@ -50,7 +50,7 @@ class EasyGame(PaiaGame):
                 self._playground_h
             )
             self._green_food_count = green_food_count
-            self._black_food_count = black_food_count
+            self._red_food_count = red_food_count
             self._score_to_pass = score_to_pass
             self._frame_limit = time_to_play
             self.playground.center = (WIDTH / 2, HEIGHT / 2)
@@ -80,7 +80,7 @@ class EasyGame(PaiaGame):
             self._playground_h
         )
         self._green_food_count = int(game_params["green_food_count"])
-        self._black_food_count = int(game_params["black_food_count"])
+        self._red_food_count = int(game_params["black_food_count"])
         self._score_to_pass = int(game_params["score_to_pass"])
         self._frame_limit = int(game_params["time_to_play"])
         self.playground.center = (WIDTH / 2, HEIGHT / 2)
@@ -91,7 +91,7 @@ class EasyGame(PaiaGame):
         self.foods.empty()
         self.score = 0
         self._create_foods(self._green_food_count, FoodTypeEnum.GREEN)
-        self._create_foods(self._black_food_count, FoodTypeEnum.BLACK)
+        self._create_foods(self._red_food_count, FoodTypeEnum.RED)
         self.frame_count = 0
         self._frame_count_down = self._frame_limit
 
@@ -116,8 +116,8 @@ class EasyGame(PaiaGame):
                     self.score += 1
                     self._create_foods(1, FoodTypeEnum.GREEN)
 
-                elif food.type == FoodTypeEnum.BLACK:
-                    self._create_foods(1, FoodTypeEnum.BLACK)
+                elif food.type == FoodTypeEnum.RED:
+                    self._create_foods(1, FoodTypeEnum.RED)
                     self.score -= 1
         # self._timer = round(time.time() - self._begin_time, 3)
 
@@ -180,13 +180,13 @@ class EasyGame(PaiaGame):
         Get the initial scene and object information for drawing on the web
         """
         # TODO add music or sound
-        bg_path = path.join(ASSET_PATH, "img/background.jpg")
-        background = create_asset_init_data(
-            "background", WIDTH, HEIGHT, bg_path,
-            github_raw_url="https://raw.githubusercontent.com/PAIA-Playful-AI-Arena/easy_game/main/asset/img/background.jpg")
+        # bg_path = path.join(ASSET_PATH, "img/background.jpg")
+        # background = create_asset_init_data(
+        #     "background", WIDTH, HEIGHT, bg_path,
+        #     github_raw_url="https://raw.githubusercontent.com/PAIA-Playful-AI-Arena/easy_game/main/asset/img/background.jpg")
         scene_init_data = {"scene": self.scene.__dict__,
                            "assets": [
-                               background
+                               # background
                            ],
                            # "audios": {}
                            }
@@ -203,14 +203,20 @@ class EasyGame(PaiaGame):
         game_obj_list = [self.ball.game_object_data]
         game_obj_list.extend(foods_data)
         backgrounds = [
-            create_image_view_data("background", 0, 0, WIDTH, HEIGHT),
+            # create_image_view_data("background", 0, 0, WIDTH, HEIGHT),
             create_rect_view_data(
                 "playground", self.playground.x, self.playground.y,
                 self.playground.w, self.playground.h, PG_COLOR)
         ]
-        foregrounds = [create_text_view_data(f"Score = {self.score:04d}", 650, 50, "#FF0000", "24px Arial BOLD")]
+        foregrounds = [
+
+        ]
         toggle_objs = [
-            create_text_view_data(f"{self._frame_count_down:04d} frame", 650, 100, "#FFAA00", "24px Arial BOLD")]
+            create_text_view_data(f"Score:{self.score:04d}", 600, 50, "#A5D6A7", "24px Arial BOLD"),
+            create_text_view_data(f" Next:{self._score_to_pass:04d}", 600, 100, "#FF4081", "24px Arial BOLD"),
+            create_text_view_data(f" Time:{self._frame_count_down:04d}", 600, 150, "#FF5722", "24px Arial BOLD"),
+
+        ]
         scene_progress = create_scene_progress_data(frame=self.frame_count, background=backgrounds,
                                                     object_list=game_obj_list,
                                                     foreground=foregrounds, toggle=toggle_objs)

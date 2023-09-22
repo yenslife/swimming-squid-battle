@@ -4,7 +4,7 @@ from games.easy_game.src.enums import FoodTypeEnum
 from mlgame.view.view_model import create_rect_view_data
 
 FOOD_COLOR_MAP = {FoodTypeEnum.GREEN: "#009688",
-                  FoodTypeEnum.BLACK: "#263238"}
+                  FoodTypeEnum.RED: "#FF1744"}
 BALL_COLOR = "#FFEB3B"
 BALL_VEL = 10.5
 

@@ -41,8 +41,8 @@
       "default": 10
     },
     {
-      "name": "black_food_count",
-      "verbose": "黑色食物數量",
+      "name": "red_food_count",
+      "verbose": "紅色食物數量",
       "type": "int",
       "choices": [
         5,
