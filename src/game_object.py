@@ -63,18 +63,15 @@ class Food(pygame.sprite.Sprite):
         self.angle = 0
 
     def update(self) -> None:
-        self.angle += 10
-        if self.angle > 360:
-            self.angle -= 360
+        pass
 
     @property
     def game_object_data(self):
-        return {"type": "rect",
-                "name": "ball",
-                "x": self.rect.x,
-                "y": self.rect.y,
-                "angle": 0,
-                "width": self.rect.width,
-                "height": self.rect.height,
-                "color": self.color
-                }
+        return create_rect_view_data(
+            "food",
+            self.rect.x,
+            self.rect.y,
+            self.rect.width,
+            self.rect.height,
+            self.color
+        )
