@@ -10,6 +10,11 @@ from mlgame.view.view_model import *
 from .enums import FoodTypeEnum
 from .game_object import Ball, Food
 
+BG_COLOR = "#111111"
+PG_COLOR = "#B3E5FC"
+
+WIDTH = 800
+HEIGHT = 600
 ASSET_PATH = path.join(path.dirname(__file__), "../asset")
 LEVEL_PATH = path.join(path.dirname(__file__), "../levels")
 
@@ -19,21 +24,24 @@ class EasyGame(PaiaGame):
     This is a Interface of a game
     """
 
-    def __init__(self, time_to_play, green_food_count, black_food_count, score, color, *args, **kwargs):
+    def __init__(
+            self, time_to_play, score, green_food_count, black_food_count,
+            # playground_size
+            *args, **kwargs):
         super().__init__(user_num=1)
-        self.game_result_state = GameResultState.FAIL
         self.playground_w = 400
         self.playground_h = 300
-        self.scene = Scene(width=800, height=600, color="#111111", bias_x=0, bias_y=0)
+
+        self.game_result_state = GameResultState.FAIL
+        self.scene = Scene(width=WIDTH, height=HEIGHT, color=BG_COLOR, bias_x=0, bias_y=0)
         self.playground = pygame.Rect(
-            350 - (self.playground_w / 2),
-            300 - (self.playground_h / 2),
+            0, 0,
             self.playground_w,
             self.playground_h
         )
+        self.playground.center = (WIDTH / 2, HEIGHT / 2)
         self.green_food_count = green_food_count
         self.black_food_count = black_food_count
-        self.color = color
         self.score_to_win = score
         self.frame_limit = time_to_play
 
@@ -41,7 +49,7 @@ class EasyGame(PaiaGame):
         self.init_game()
 
     def init_game(self):
-        self.ball = Ball("#" + self.color)
+        self.ball = Ball()
         self.foods.empty()
         self.score = 0
         self._create_foods(self.green_food_count, FoodTypeEnum.GREEN)
@@ -56,7 +64,7 @@ class EasyGame(PaiaGame):
             action = ai_1p_cmd[0]
         else:
             action = "NONE"
-        # print(ai_1p_cmd)
+
         self.ball.update(action)
         self.revise_ball(self.ball, self.playground)
         # update sprite
@@ -131,7 +139,7 @@ class EasyGame(PaiaGame):
         # TODO add music or sound
         bg_path = path.join(ASSET_PATH, "img/background.jpg")
         background = create_asset_init_data(
-            "background", 800, 600, bg_path,
+            "background", WIDTH, HEIGHT, bg_path,
             github_raw_url="https://raw.githubusercontent.com/PAIA-Playful-AI-Arena/easy_game/main/asset/img/background.jpg")
         scene_init_data = {"scene": self.scene.__dict__,
                            "assets": [
@@ -152,10 +160,10 @@ class EasyGame(PaiaGame):
         game_obj_list = [self.ball.game_object_data]
         game_obj_list.extend(foods_data)
         backgrounds = [
-            create_image_view_data("background", 0, 0, 800, 600),
+            create_image_view_data("background", 0, 0, WIDTH, HEIGHT),
             create_rect_view_data(
                 "playground", self.playground.x, self.playground.y,
-                self.playground.w, self.playground.h, "#B3E5FC")
+                self.playground.w, self.playground.h, PG_COLOR)
         ]
         foregrounds = [create_text_view_data(f"Score = {self.score:04d}", 650, 50, "#FF0000", "24px Arial BOLD")]
         toggle_objs = [
