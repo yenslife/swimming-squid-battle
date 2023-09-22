@@ -4,6 +4,8 @@ import pygame.sprite
 
 from mlgame.view.view_model import create_rect_view_data
 
+FOOD_COLOR = "#009688"
+
 BALL_VEL = 10.5
 
 BALL_H = 50
@@ -54,7 +56,7 @@ class Food(pygame.sprite.Sprite):
     def __init__(self, group):
         pygame.sprite.Sprite.__init__(self, group)
         self.image = pygame.Surface([8, 8])
-        self.color = "#E91E63"
+        self.color = FOOD_COLOR
         self.rect = self.image.get_rect()
         self.rect.centerx = random.randint(0, 800)
         self.rect.centery = random.randint(0, 600)

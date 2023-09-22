@@ -21,8 +21,15 @@
       "help": "set the limit of frame count , actually time will be revised according to your FPS ."
     },
     {
-      "name": "total_point_count",
-      "verbose": "總食物數量",
+      "name": "green_food_count",
+      "verbose": "綠色食物數量",
+      "type": "int",
+      "choices":[ 5 ,10 ,15,20,25,30,35,40,45,50],
+      "help": "set the total number of points",
+      "default": 10
+    }, {
+      "name": "black_food_count",
+      "verbose": "黑色食物數量",
       "type": "int",
       "choices":[ 5 ,10 ,15,20,25,30,35,40,45,50],
       "help": "set the total number of points",

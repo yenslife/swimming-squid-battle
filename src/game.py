@@ -19,17 +19,17 @@ class EasyGame(PaiaGame):
     This is a Interface of a game
     """
 
-    def __init__(self, time_to_play, total_point_count, score, color, *args, **kwargs):
+    def __init__(self, time_to_play, green_food_count,black_food_count, score, color, *args, **kwargs):
         super().__init__(user_num=1)
         self.game_result_state = GameResultState.FAIL
         self.scene = Scene(width=800, height=600, color="#111111", bias_x=0, bias_y=0)
-        self.total_point_count = total_point_count
+        self.total_point_count = green_food_count
         self.color = color
         self.ball = Ball("#" + color)
         self.foods = pygame.sprite.Group()
         self.score = 0
         self.score_to_win = score
-        self._create_foods(total_point_count)
+        self._create_foods(self.total_point_count)
         self._begin_time = time.time()
         self._frame_count_down = time_to_play
         self.frame_limit = time_to_play
