@@ -36,46 +36,64 @@ class EasyGame(PaiaGame):
 
         self.game_result_state = GameResultState.FAIL
         self.scene = Scene(width=WIDTH, height=HEIGHT, color=BG_COLOR, bias_x=0, bias_y=0)
+        self._level = level
         if level != -1:
-            with open(os.path.join(LEVEL_PATH, f"{level:03d}.json")) as f:
-                game_params = json.load(f)
-            self.playground_w = int(game_params["playground_size"][0])
-            self.playground_h = int(game_params["playground_size"][1])
-            self.playground = pygame.Rect(
-                0, 0,
-                self.playground_w,
-                self.playground_h
-            )
-            self.green_food_count = int(game_params["green_food_count"])
-            self.black_food_count = int(game_params["black_food_count"])
-            self.score_to_win = int(game_params["score_to_pass"])
-            self.frame_limit = int(game_params["time_to_play"])
+
+            self.set_game_params_by_level(level)
             pass
         else:
-            self.playground_w = int(playground_size[0])
-            self.playground_h = int(playground_size[1])
+            self._playground_w = int(playground_size[0])
+            self._playground_h = int(playground_size[1])
             self.playground = pygame.Rect(
                 0, 0,
-                self.playground_w,
-                self.playground_h
+                self._playground_w,
+                self._playground_h
             )
-            self.green_food_count = green_food_count
-            self.black_food_count = black_food_count
-            self.score_to_win = score_to_pass
-            self.frame_limit = time_to_play
+            self._green_food_count = green_food_count
+            self._black_food_count = black_food_count
+            self._score_to_pass = score_to_pass
+            self._frame_limit = time_to_play
+            self.playground.center = (WIDTH / 2, HEIGHT / 2)
 
-        self.playground.center = (WIDTH / 2, HEIGHT / 2)
         self.foods = pygame.sprite.Group()
         self.init_game()
+
+    def set_game_params_by_level(self, level):
+        level_file_path =os.path.join(LEVEL_PATH, f"{level:03d}.json")
+        if os.path.exists(level_file_path):
+            # If the file exists, load parameters from the file
+            with open(level_file_path) as f:
+                game_params = json.load(f)
+        else:
+            # If the file doesn't exist, use default parameters
+
+            with open(os.path.join(LEVEL_PATH, "001.json")) as f:
+                game_params = json.load(f)
+                self._level=1
+
+
+        self._playground_w = int(game_params["playground_size"][0])
+        self._playground_h = int(game_params["playground_size"][1])
+        self.playground = pygame.Rect(
+            0, 0,
+            self._playground_w,
+            self._playground_h
+        )
+        self._green_food_count = int(game_params["green_food_count"])
+        self._black_food_count = int(game_params["black_food_count"])
+        self._score_to_pass = int(game_params["score_to_pass"])
+        self._frame_limit = int(game_params["time_to_play"])
+        self.playground.center = (WIDTH / 2, HEIGHT / 2)
+
 
     def init_game(self):
         self.ball = Ball()
         self.foods.empty()
         self.score = 0
-        self._create_foods(self.green_food_count, FoodTypeEnum.GREEN)
-        self._create_foods(self.black_food_count, FoodTypeEnum.BLACK)
+        self._create_foods(self._green_food_count, FoodTypeEnum.GREEN)
+        self._create_foods(self._black_food_count, FoodTypeEnum.BLACK)
         self.frame_count = 0
-        self._frame_count_down = self.frame_limit
+        self._frame_count_down = self._frame_limit
 
     def update(self, commands):
         # handle command
@@ -104,7 +122,7 @@ class EasyGame(PaiaGame):
         # self._timer = round(time.time() - self._begin_time, 3)
 
         self.frame_count += 1
-        self._frame_count_down = self.frame_limit - self.frame_count
+        self._frame_count_down = self._frame_limit - self.frame_count
         # self.draw()
 
         if not self.is_running:
@@ -137,20 +155,25 @@ class EasyGame(PaiaGame):
 
         if self.is_running:
             status = GameStatus.GAME_ALIVE
-        elif self.score > self.score_to_win:
+        elif self.score > self._score_to_pass:
             status = GameStatus.GAME_PASS
         else:
             status = GameStatus.GAME_OVER
         return status
 
     def reset(self):
+        if self.score > self._score_to_pass and self._level != -1:
+            #     win and use level will enter next level
+            self._level += 1
+            self.set_game_params_by_level(self._level)
+
         self.init_game()
 
         pass
 
     @property
     def is_running(self):
-        return self.frame_count < self.frame_limit
+        return self.frame_count < self._frame_limit
 
     def get_scene_init_data(self):
         """
@@ -207,7 +230,7 @@ class EasyGame(PaiaGame):
                         "player": get_ai_name(0),
                         "rank": 1,
                         "score": self.score,
-                        "passed": self.score > self.score_to_win
+                        "passed": self.score > self._score_to_pass
                     }
                 ]
 
