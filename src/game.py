@@ -1,4 +1,3 @@
-import time
 from os import path
 
 import pygame
@@ -36,8 +35,8 @@ class EasyGame(PaiaGame):
         self.ball = Ball("#" + self.color)
         self.foods.empty()
         self.score = 0
-        self._create_foods(self.green_food_count,FoodTypeEnum.GREEN)
-        self._create_foods(self.black_food_count,FoodTypeEnum.BLACK)
+        self._create_foods(self.green_food_count, FoodTypeEnum.GREEN)
+        self._create_foods(self.black_food_count, FoodTypeEnum.BLACK)
         self.frame_count = 0
         self._frame_count_down = self.frame_limit
 
@@ -57,8 +56,15 @@ class EasyGame(PaiaGame):
         # handle collision
         hits = pygame.sprite.spritecollide(self.ball, self.foods, True, pygame.sprite.collide_rect_ratio(0.8))
         if hits:
-            self.score += len(hits)
-            self._create_foods(len(hits))
+            for food in hits:
+                if food.type == FoodTypeEnum.GREEN:
+                    self.score += 1
+                    self._create_foods(1, FoodTypeEnum.GREEN)
+
+                elif food.type == FoodTypeEnum.BLACK:
+                    self._create_foods(1, FoodTypeEnum.BLACK)
+                    self.score -= 1
+                food.kill()
         # self._timer = round(time.time() - self._begin_time, 3)
 
         self.frame_count += 1
@@ -138,7 +144,7 @@ class EasyGame(PaiaGame):
         game_obj_list = [self.ball.game_object_data]
         game_obj_list.extend(foods_data)
         backgrounds = [create_image_view_data("background", 0, 0, 800, 600)]
-        foregrounds = [create_text_view_data(f"Score = {str(self.score)}", 650, 50, "#FF0000", "24px Arial BOLD")]
+        foregrounds = [create_text_view_data(f"Score = {self.score:04d}", 650, 50, "#FF0000", "24px Arial BOLD")]
         toggle_objs = [
             create_text_view_data(f"{self._frame_count_down:04d} frame", 650, 100, "#FFAA00", "24px Arial BOLD")]
         scene_progress = create_scene_progress_data(frame=self.frame_count, background=backgrounds,

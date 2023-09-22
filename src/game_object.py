@@ -58,7 +58,7 @@ class Food(pygame.sprite.Sprite):
     def __init__(self, group, type: FoodTypeEnum):
         pygame.sprite.Sprite.__init__(self, group)
         self.image = pygame.Surface([8, 8])
-        self.type = FoodTypeEnum.GREEN
+        self.type = type
         self.color = FOOD_COLOR_MAP[type]
 
         self.rect = self.image.get_rect()
