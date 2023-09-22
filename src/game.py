@@ -1,4 +1,6 @@
 import copy
+import json
+import os.path
 from os import path
 
 import pygame
@@ -25,26 +27,44 @@ class EasyGame(PaiaGame):
     """
 
     def __init__(
-            self, time_to_play, score_to_win, green_food_count, black_food_count,
-            playground_size:list,
+            self, time_to_play, score_to_pass, green_food_count, black_food_count,
+            playground_size: list,
+            level: int = -1,
+            # level_file,
             *args, **kwargs):
         super().__init__(user_num=1)
-        self.playground_w = int(playground_size[0])
-        self.playground_h = int(playground_size[1])
 
         self.game_result_state = GameResultState.FAIL
         self.scene = Scene(width=WIDTH, height=HEIGHT, color=BG_COLOR, bias_x=0, bias_y=0)
-        self.playground = pygame.Rect(
-            0, 0,
-            self.playground_w,
-            self.playground_h
-        )
-        self.playground.center = (WIDTH / 2, HEIGHT / 2)
-        self.green_food_count = green_food_count
-        self.black_food_count = black_food_count
-        self.score_to_win = score_to_win
-        self.frame_limit = time_to_play
+        if level != -1:
+            with open(os.path.join(LEVEL_PATH, f"{level:03d}.json")) as f:
+                game_params = json.load(f)
+            self.playground_w = int(game_params["playground_size"][0])
+            self.playground_h = int(game_params["playground_size"][1])
+            self.playground = pygame.Rect(
+                0, 0,
+                self.playground_w,
+                self.playground_h
+            )
+            self.green_food_count = int(game_params["green_food_count"])
+            self.black_food_count = int(game_params["black_food_count"])
+            self.score_to_win = int(game_params["score_to_pass"])
+            self.frame_limit = int(game_params["time_to_play"])
+            pass
+        else:
+            self.playground_w = int(playground_size[0])
+            self.playground_h = int(playground_size[1])
+            self.playground = pygame.Rect(
+                0, 0,
+                self.playground_w,
+                self.playground_h
+            )
+            self.green_food_count = green_food_count
+            self.black_food_count = black_food_count
+            self.score_to_win = score_to_pass
+            self.frame_limit = time_to_play
 
+        self.playground.center = (WIDTH / 2, HEIGHT / 2)
         self.foods = pygame.sprite.Group()
         self.init_game()
 
@@ -187,7 +207,7 @@ class EasyGame(PaiaGame):
                         "player": get_ai_name(0),
                         "rank": 1,
                         "score": self.score,
-                        "passed":self.score>self.score_to_win
+                        "passed": self.score > self.score_to_win
                     }
                 ]
 

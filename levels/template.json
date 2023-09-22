@@ -1,27 +1,10 @@
 {
-  "frame_limit": 1200,
-  "screen_size": [
-    100,
-    100
+  "time_to_play": 1200,
+  "playground_size": [
+    500,
+    200
   ],
   "score_to_pass": 20,
-  "mebo_init_lv": 1,
-  "green_food_counts": [
-    8,
-    5,
-    2,
-    1
-  ],
-  "red_food_counts": [
-    8,
-    5,
-    2,
-    1
-  ],
-  "black_food_counts": [
-    8,
-    5,
-    2,
-    1
-  ]
+  "green_food_count": 3,
+  "black_food_count": 1
 }

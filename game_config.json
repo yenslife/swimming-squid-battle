@@ -8,7 +8,8 @@
     "https://raw.githubusercontent.com/PAIA-Playful-AI-Arena/Paia-Desktop/master/media/easygame.svg"
   ],
   "user_num": {
-    "min": 1,"max": 1
+    "min": 1,
+    "max": 1
   },
   "game_params": [
     {
@@ -24,19 +25,42 @@
       "name": "green_food_count",
       "verbose": "綠色食物數量",
       "type": "int",
-      "choices":[ 5 ,10 ,15,20,25,30,35,40,45,50],
-      "help": "set the total number of points",
-      "default": 10
-    }, {
-      "name": "black_food_count",
-      "verbose": "黑色食物數量",
-      "type": "int",
-      "choices":[ 5 ,10 ,15,20,25,30,35,40,45,50],
+      "choices": [
+        5,
+        10,
+        15,
+        20,
+        25,
+        30,
+        35,
+        40,
+        45,
+        50
+      ],
       "help": "set the total number of points",
       "default": 10
     },
     {
-      "name": "score_to_win",
+      "name": "black_food_count",
+      "verbose": "黑色食物數量",
+      "type": "int",
+      "choices": [
+        5,
+        10,
+        15,
+        20,
+        25,
+        30,
+        35,
+        40,
+        45,
+        50
+      ],
+      "help": "set the total number of points",
+      "default": 10
+    },
+    {
+      "name": "score_to_pass",
       "verbose": "通關分數",
       "type": "int",
       "min": 1,
@@ -48,9 +72,17 @@
       "name": "playground_size",
       "verbose": "場地尺寸",
       "type": "list",
-
-      "default": "500,400",
+      "default": "400,400",
       "help": "set the size of playground "
+    },
+    {
+      "name": "level",
+      "verbose": "內建關卡編號",
+      "type": "int",
+      "min": -1,
+      "max": 5,
+      "default": "-1",
+      "help": "選定內建關卡，請注意，使用此設定將會覆蓋掉其他設定，預設為 -1 不選擇任何關卡。"
     }
   ]
 }
