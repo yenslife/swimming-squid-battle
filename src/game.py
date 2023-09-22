@@ -25,12 +25,12 @@ class EasyGame(PaiaGame):
     """
 
     def __init__(
-            self, time_to_play, score, green_food_count, black_food_count,
-            # playground_size
+            self, time_to_play, score_to_win, green_food_count, black_food_count,
+            playground_size:list,
             *args, **kwargs):
         super().__init__(user_num=1)
-        self.playground_w = 400
-        self.playground_h = 300
+        self.playground_w = int(playground_size[0])
+        self.playground_h = int(playground_size[1])
 
         self.game_result_state = GameResultState.FAIL
         self.scene = Scene(width=WIDTH, height=HEIGHT, color=BG_COLOR, bias_x=0, bias_y=0)
@@ -42,7 +42,7 @@ class EasyGame(PaiaGame):
         self.playground.center = (WIDTH / 2, HEIGHT / 2)
         self.green_food_count = green_food_count
         self.black_food_count = black_food_count
-        self.score_to_win = score
+        self.score_to_win = score_to_win
         self.frame_limit = time_to_play
 
         self.foods = pygame.sprite.Group()
@@ -186,7 +186,8 @@ class EasyGame(PaiaGame):
                     {
                         "player": get_ai_name(0),
                         "rank": 1,
-                        "score": self.score
+                        "score": self.score,
+                        "passed":self.score>self.score_to_win
                     }
                 ]
 

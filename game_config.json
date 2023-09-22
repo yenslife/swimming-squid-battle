@@ -36,13 +36,21 @@
       "default": 10
     },
     {
-      "name": "score",
+      "name": "score_to_win",
       "verbose": "通關分數",
       "type": "int",
       "min": 1,
       "max": 30,
       "default": 10,
       "help": "set the score to win this game "
+    },
+    {
+      "name": "playground_size",
+      "verbose": "場地尺寸",
+      "type": "list",
+
+      "default": "500,400",
+      "help": "set the size of playground "
     }
   ]
 }
