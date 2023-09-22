@@ -20,8 +20,8 @@
         [800, "right boundary", "右邊界"],
         [0, "top boundary", "上邊界"],
         [600, "bottom boundary", "下邊界"],
-        [50, "ball width", "球身的寬度"],
-        [50, "ball height", "球身的高度"],
+        [30, "ball width", "球身的寬度"],
+        [30, "ball height", "球身的高度"],
         [8, "food width", "食物的寬度"],
         [8, "food height", "食物的高度"]
     ],

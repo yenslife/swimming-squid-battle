@@ -21,13 +21,17 @@
 
 ```python
 # main.py 
-game = EasyGame(time_to_play=1000, total_point_count=10, score=5, color="FF9800")
+game = EasyGame(
+            time_to_play, score_to_pass, green_food_count, red_food_count,
+            playground_size: list,level: int = -1)
 ```
 
 - `time_to_play`：遊戲執行的終止時間，單位是 frame，也就是遊戲內部更新畫面的次數，每更新一次 frame +1
-- `total_point_count`：遊戲中食物出現的最大數量。
-- `score`：遊戲通關的點數，要超過這個分數才算過關。
-- `color`：主角方塊的顏色，使用16進位顏色表示法
+- `green_food_count`：遊戲中綠色食物的數量。
+- `red_food_count`：遊戲中紅色食物的數量。
+- `score_to_pass`：遊戲通關的點數，要超過這個分數才算過關。
+- `playground_size`：可移動區域的大小。 使用逗號將數字隔開 `width,height` `100,200` 
+- `level`: 選定內建關卡，請注意，使用此設定將會覆蓋掉其他設定，預設為 -1 不選擇任何關卡。
 
 ## 玩法
 
@@ -53,7 +57,7 @@ game = EasyGame(time_to_play=1000, total_point_count=10, score=5, color="FF9800"
     
 2. 座標系統
     - 螢幕大小 800 x 600
-    - 主角方塊 50 x 50
+    - 主角方塊 30 x 30
     - 食物方塊 8 x 8
 
 ---
@@ -64,7 +68,7 @@ game = EasyGame(time_to_play=1000, total_point_count=10, score=5, color="FF9800"
 
 ```bash
 # 在easy game中，打開終端機
-python -m mlgame -i ./ml/ml_play_template.py ./ --time_to_play 1200 --total_point_count 15 --score 10 --color FF9800
+python -m mlgame -i ./ml/ml_play_template.py ./ --time_to_play 1200 --green_food_count 15 --red_food_count 10 --score_to_pass 10 --playground_size 100,200
 ```
 
 ## ＡＩ範例
@@ -163,5 +167,6 @@ class MLPlay:
     - `player`：玩家編號
     - `score`：吃到的食物總數
     - `rank`：排名
+    - `passed`：是否通關
 
 ---
