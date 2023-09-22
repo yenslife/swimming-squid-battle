@@ -11,6 +11,7 @@ from mlgame.view.view_model import create_text_view_data, create_asset_init_data
 from .game_object import Ball, Food
 
 ASSET_PATH = path.join(path.dirname(__file__), "../asset")
+LEVEL_PATH = path.join(path.dirname(__file__), "../levels")
 
 
 class EasyGame(PaiaGame):
@@ -21,19 +22,18 @@ class EasyGame(PaiaGame):
     def __init__(self, time_to_play, total_point_count, score, color, *args, **kwargs):
         super().__init__(user_num=1)
         self.game_result_state = GameResultState.FAIL
-        self.scene = Scene(width=800, height=600, color="#4FC3F7", bias_x=0, bias_y=0)
+        self.scene = Scene(width=800, height=600, color="#111111", bias_x=0, bias_y=0)
         self.total_point_count = total_point_count
         self.color = color
-        print(color)
         self.ball = Ball("#" + color)
         self.foods = pygame.sprite.Group()
         self.score = 0
         self.score_to_win = score
         self._create_foods(total_point_count)
         self._begin_time = time.time()
-        self._timer = 0
+        self._frame_count_down = time_to_play
+        self.frame_limit = time_to_play
         self.frame_count = 0
-        self.time_limit = time_to_play
 
     def update(self, commands):
         # handle command
@@ -53,9 +53,10 @@ class EasyGame(PaiaGame):
         if hits:
             self.score += len(hits)
             self._create_foods(len(hits))
-        self._timer = round(time.time() - self._begin_time, 3)
+        # self._timer = round(time.time() - self._begin_time, 3)
 
         self.frame_count += 1
+        self._frame_count_down = self.frame_limit - self.frame_count
         # self.draw()
 
         if not self.is_running:
@@ -97,17 +98,16 @@ class EasyGame(PaiaGame):
     def reset(self):
         self.score = 0
         self._begin_time = time.time()
-        self._timer = 0
+        self._frame_count_down = 0
         self.frame_count = 0
         self.ball = Ball("#" + self.color)
-
         self.foods = pygame.sprite.Group()
         self._create_foods(self.total_point_count)
         pass
 
     @property
     def is_running(self):
-        return self.frame_count < self.time_limit
+        return self.frame_count < self.frame_limit
 
     def get_scene_init_data(self):
         """
@@ -138,7 +138,7 @@ class EasyGame(PaiaGame):
         game_obj_list.extend(foods_data)
         backgrounds = [create_image_view_data("background", 0, 0, 800, 600)]
         foregrounds = [create_text_view_data(f"Score = {str(self.score)}", 650, 50, "#FF0000", "24px Arial BOLD")]
-        toggle_objs = [create_text_view_data(f"Timer = {str(self._timer)} s", 650, 100, "#FFAA00", "24px Arial")]
+        toggle_objs = [create_text_view_data(f"{self._frame_count_down:04d} frame", 650, 100, "#FFAA00", "24px Arial BOLD")]
         scene_progress = create_scene_progress_data(frame=self.frame_count, background=backgrounds,
                                                     object_list=game_obj_list,
                                                     foreground=foregrounds, toggle=toggle_objs)
