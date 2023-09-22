@@ -62,8 +62,6 @@ class Food(pygame.sprite.Sprite):
         self.color = FOOD_COLOR_MAP[type]
 
         self.rect = self.image.get_rect()
-        self.rect.centerx = random.randint(0, 800)
-        self.rect.centery = random.randint(0, 600)
         self.angle = 0
 
     def update(self) -> None:

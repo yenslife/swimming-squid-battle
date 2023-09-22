@@ -1,3 +1,4 @@
+import copy
 from os import path
 
 import pygame
@@ -5,8 +6,7 @@ import pygame
 from mlgame.game.paia_game import PaiaGame, GameResultState, GameStatus
 from mlgame.utils.enum import get_ai_name
 from mlgame.view.decorator import check_game_progress, check_game_result
-from mlgame.view.view_model import create_text_view_data, create_asset_init_data, create_image_view_data, Scene, \
-    create_scene_progress_data
+from mlgame.view.view_model import *
 from .enums import FoodTypeEnum
 from .game_object import Ball, Food
 
@@ -22,13 +22,22 @@ class EasyGame(PaiaGame):
     def __init__(self, time_to_play, green_food_count, black_food_count, score, color, *args, **kwargs):
         super().__init__(user_num=1)
         self.game_result_state = GameResultState.FAIL
+        self.playground_w = 400
+        self.playground_h = 300
         self.scene = Scene(width=800, height=600, color="#111111", bias_x=0, bias_y=0)
+        self.playground = pygame.Rect(
+            350 - (self.playground_w / 2),
+            300 - (self.playground_h / 2),
+            self.playground_w,
+            self.playground_h
+        )
         self.green_food_count = green_food_count
         self.black_food_count = black_food_count
         self.color = color
-        self.foods = pygame.sprite.Group()
         self.score_to_win = score
         self.frame_limit = time_to_play
+
+        self.foods = pygame.sprite.Group()
         self.init_game()
 
     def init_game(self):
@@ -49,12 +58,12 @@ class EasyGame(PaiaGame):
             action = "NONE"
         # print(ai_1p_cmd)
         self.ball.update(action)
-
+        self.revise_ball(self.ball, self.playground)
         # update sprite
         self.foods.update()
 
         # handle collision
-        hits = pygame.sprite.spritecollide(self.ball, self.foods, True, pygame.sprite.collide_rect_ratio(0.8))
+        hits = pygame.sprite.spritecollide(self.ball, self.foods, True)
         if hits:
             for food in hits:
                 if food.type == FoodTypeEnum.GREEN:
@@ -64,7 +73,6 @@ class EasyGame(PaiaGame):
                 elif food.type == FoodTypeEnum.BLACK:
                     self._create_foods(1, FoodTypeEnum.BLACK)
                     self.score -= 1
-                food.kill()
         # self._timer = round(time.time() - self._begin_time, 3)
 
         self.frame_count += 1
@@ -143,7 +151,12 @@ class EasyGame(PaiaGame):
             foods_data.append(food.game_object_data)
         game_obj_list = [self.ball.game_object_data]
         game_obj_list.extend(foods_data)
-        backgrounds = [create_image_view_data("background", 0, 0, 800, 600)]
+        backgrounds = [
+            create_image_view_data("background", 0, 0, 800, 600),
+            create_rect_view_data(
+                "playground", self.playground.x, self.playground.y,
+                self.playground.w, self.playground.h, "#B3E5FC")
+        ]
         foregrounds = [create_text_view_data(f"Score = {self.score:04d}", 650, 50, "#FF0000", "24px Arial BOLD")]
         toggle_objs = [
             create_text_view_data(f"{self._frame_count_down:04d} frame", 650, 100, "#FFAA00", "24px Arial BOLD")]
@@ -193,4 +206,21 @@ class EasyGame(PaiaGame):
         for i in range(count):
             # add food to group
             food = Food(self.foods, type)
+
+            food.rect.centerx = random.randint(self.playground.left, self.playground.right)
+            food.rect.centery = random.randint(self.playground.top, self.playground.bottom)
+        pass
+
+    def revise_ball(self, ball: Ball, playground: pygame.Rect):
+        ball_rect = copy.deepcopy(ball.rect)
+        if ball_rect.left < playground.left:
+            ball_rect.left = playground.left
+        elif ball_rect.right > playground.right:
+            ball_rect.right = playground.right
+
+        if ball_rect.top < playground.top:
+            ball_rect.top = playground.top
+        elif ball_rect.bottom > playground.bottom:
+            ball_rect.bottom = playground.bottom
+        ball.rect = ball_rect
         pass
