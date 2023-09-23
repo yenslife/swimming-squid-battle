@@ -22,8 +22,12 @@
 ```python
 # main.py 
 game = EasyGame(
-            time_to_play, score_to_pass, green_food_count, red_food_count,
-            playground_size: list,level: int = -1)
+            time_to_play, score_to_pass, 
+            green_food_count, red_food_count,
+            playground_size: list,
+            level: int = -1,
+            level_file: str = None,
+            sound: str = "off")
 ```
 
 - `time_to_play`：遊戲執行的終止時間，單位是 frame，也就是遊戲內部更新畫面的次數，每更新一次 frame +1
@@ -31,7 +35,9 @@ game = EasyGame(
 - `red_food_count`：遊戲中紅色食物的數量。
 - `score_to_pass`：遊戲通關的點數，要超過這個分數才算過關。
 - `playground_size`：可移動區域的大小。 使用逗號將數字隔開 `width,height` `100,200` 
-- `level`: 選定內建關卡，請注意，使用此設定將會覆蓋掉其他設定，預設為 -1 不選擇任何關卡。
+- `level`: 選定內建關卡，請注意，使用此設定將會覆蓋掉上述其他關卡參數設定，預設為 -1 不選擇任何關卡。
+- `level_file`: 使用外部檔案作為關卡，請注意，使用此設定將會覆蓋掉關卡編號，並且不會自動進入下一關。
+- `sound`: 音效。
 
 ## 玩法
 
@@ -153,7 +159,8 @@ class MLPlay:
     {
       "player": "1P",
       "score": 0,
-      "rank": 1
+      "rank": 1,
+      "passed": false
     }
   ]
 }
