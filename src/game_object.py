@@ -1,16 +1,7 @@
 import pygame.sprite
 
-from games.easy_game.src.enums import FoodTypeEnum
+from games.easy_game.src.env import FoodTypeEnum, FOOD_COLOR_MAP, BALL_COLOR, BALL_VEL, BALL_H, BALL_W
 from mlgame.view.view_model import create_rect_view_data
-
-FOOD_COLOR_MAP = {FoodTypeEnum.GREEN: "#009688",
-                  FoodTypeEnum.RED: "#FF1744"}
-BALL_COLOR = "#FFEB3B"
-BALL_VEL = 10.5
-
-BALL_H = 30
-
-BALL_W = 30
 
 
 class Ball(pygame.sprite.Sprite):
