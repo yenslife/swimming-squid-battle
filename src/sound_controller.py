@@ -24,6 +24,7 @@ class SoundController():
             pygame.mixer.music.set_volume(0.6)
             self._eating_good = pygame.mixer.Sound(path.join(SOUND_PATH, "Coin.wav"))
             self._eating_bad = pygame.mixer.Sound(path.join(SOUND_PATH, "Low Boing.wav"))
+            self._cheer = pygame.mixer.Sound(path.join(SOUND_PATH, "Cheer.wav"))
         except Exception:
             self._is_sound_on = False
 
@@ -38,3 +39,6 @@ class SoundController():
     @sound_enabled
     def play_eating_bad(self):
         self._eating_bad.play()
+    @sound_enabled
+    def play_cheer(self):
+        self._cheer.play()

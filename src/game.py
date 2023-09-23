@@ -75,6 +75,7 @@ class EasyGame(PaiaGame):
             with open(os.path.join(LEVEL_PATH, "001.json")) as f:
                 game_params = json.load(f)
                 self._level = 1
+                self._level_file=None
             self._set_game_params(game_params)
 
     def _set_game_params(self, game_params):
@@ -164,16 +165,20 @@ class EasyGame(PaiaGame):
 
         if self.is_running:
             status = GameStatus.GAME_ALIVE
-        elif self.score > self._score_to_pass:
+        elif self.is_passed:
             status = GameStatus.GAME_PASS
         else:
             status = GameStatus.GAME_OVER
         return status
 
     def reset(self):
+
+        if self.is_passed:
+            self.sound_controller.play_cheer()
+
         if self._level_file:
             pass
-        elif self.score > self._score_to_pass and self._level != -1:
+        elif self.is_passed and self._level != -1:
             #     win and use level will enter next level
             self._level += 1
             self.set_game_params_by_level(self._level)
@@ -181,6 +186,10 @@ class EasyGame(PaiaGame):
         self.init_game()
 
         pass
+
+    @property
+    def is_passed(self):
+        return self.score > self._score_to_pass
 
     @property
     def is_running(self):
@@ -247,7 +256,7 @@ class EasyGame(PaiaGame):
                         "player": get_ai_name(0),
                         "rank": 1,
                         "score": self.score,
-                        "passed": self.score > self._score_to_pass
+                        "passed": self.is_passed
                     }
                 ]
 
