@@ -23,7 +23,7 @@ class EasyGame(PaiaGame):
             self, time_to_play, score_to_pass, green_food_count, red_food_count,
             playground_size: list,
             level: int = -1,
-            level_file=None,
+            level_file: str = None,
             sound: str = "off",
             *args, **kwargs):
         super().__init__(user_num=1)
@@ -31,11 +31,17 @@ class EasyGame(PaiaGame):
         self.game_result_state = GameResultState.FAIL
         self.scene = Scene(width=WIDTH, height=HEIGHT, color=BG_COLOR, bias_x=0, bias_y=0)
         self._level = level
-        if level != -1:
-
-            self.set_game_params_by_level(level)
+        self._level_file = level_file
+        if self._level_file is not None or level == "":
+            # set by injected file
+            self.set_game_params_by_file(self._level_file)
+            pass
+        elif self._level != -1:
+            # set by level number
+            self.set_game_params_by_level(self._level)
             pass
         else:
+            # set by game params
             self._playground_w = int(playground_size[0])
             self._playground_h = int(playground_size[1])
             self.playground = pygame.Rect(
@@ -55,17 +61,23 @@ class EasyGame(PaiaGame):
 
     def set_game_params_by_level(self, level):
         level_file_path = os.path.join(LEVEL_PATH, f"{level:03d}.json")
-        if os.path.exists(level_file_path):
-            # If the file exists, load parameters from the file
+        self.set_game_params_by_file(level_file_path)
+
+    def set_game_params_by_file(self, level_file_path: str):
+        try:
             with open(level_file_path) as f:
                 game_params = json.load(f)
-        else:
+            self._set_game_params(game_params)
+        except:
             # If the file doesn't exist, use default parameters
-
+            print("此關卡檔案不存在，遊戲將會會自動使用第一關檔案 001.json。")
+            print("This level file is not existed , game will load 001.json automatically.")
             with open(os.path.join(LEVEL_PATH, "001.json")) as f:
                 game_params = json.load(f)
                 self._level = 1
+            self._set_game_params(game_params)
 
+    def _set_game_params(self, game_params):
         self._playground_w = int(game_params["playground_size"][0])
         self._playground_h = int(game_params["playground_size"][1])
         self.playground = pygame.Rect(
@@ -159,7 +171,9 @@ class EasyGame(PaiaGame):
         return status
 
     def reset(self):
-        if self.score > self._score_to_pass and self._level != -1:
+        if self._level_file:
+            pass
+        elif self.score > self._score_to_pass and self._level != -1:
             #     win and use level will enter next level
             self._level += 1
             self.set_game_params_by_level(self._level)
