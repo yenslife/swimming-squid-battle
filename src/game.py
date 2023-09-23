@@ -1,7 +1,6 @@
 import copy
 import json
 import os.path
-from os import path
 
 import pygame
 
@@ -9,16 +8,10 @@ from mlgame.game.paia_game import PaiaGame, GameResultState, GameStatus
 from mlgame.utils.enum import get_ai_name
 from mlgame.view.decorator import check_game_progress, check_game_result
 from mlgame.view.view_model import *
-from .enums import FoodTypeEnum
+from .env import *
+from .env import FoodTypeEnum
 from .game_object import Ball, Food
-
-BG_COLOR = "#111111"
-PG_COLOR = "#B3E5FC"
-
-WIDTH = 800
-HEIGHT = 600
-ASSET_PATH = path.join(path.dirname(__file__), "../asset")
-LEVEL_PATH = path.join(path.dirname(__file__), "../levels")
+from .sound_controller import SoundController
 
 
 class EasyGame(PaiaGame):
@@ -30,7 +23,8 @@ class EasyGame(PaiaGame):
             self, time_to_play, score_to_pass, green_food_count, red_food_count,
             playground_size: list,
             level: int = -1,
-            # level_file,
+            level_file=None,
+            sound: str = "off",
             *args, **kwargs):
         super().__init__(user_num=1)
 
@@ -56,10 +50,11 @@ class EasyGame(PaiaGame):
             self.playground.center = (WIDTH / 2, HEIGHT / 2)
 
         self.foods = pygame.sprite.Group()
+        self.sound_controller = SoundController(sound)
         self.init_game()
 
     def set_game_params_by_level(self, level):
-        level_file_path =os.path.join(LEVEL_PATH, f"{level:03d}.json")
+        level_file_path = os.path.join(LEVEL_PATH, f"{level:03d}.json")
         if os.path.exists(level_file_path):
             # If the file exists, load parameters from the file
             with open(level_file_path) as f:
@@ -69,8 +64,7 @@ class EasyGame(PaiaGame):
 
             with open(os.path.join(LEVEL_PATH, "001.json")) as f:
                 game_params = json.load(f)
-                self._level=1
-
+                self._level = 1
 
         self._playground_w = int(game_params["playground_size"][0])
         self._playground_h = int(game_params["playground_size"][1])
@@ -85,7 +79,6 @@ class EasyGame(PaiaGame):
         self._frame_limit = int(game_params["time_to_play"])
         self.playground.center = (WIDTH / 2, HEIGHT / 2)
 
-
     def init_game(self):
         self.ball = Ball()
         self.foods.empty()
@@ -94,6 +87,7 @@ class EasyGame(PaiaGame):
         self._create_foods(self._red_food_count, FoodTypeEnum.RED)
         self.frame_count = 0
         self._frame_count_down = self._frame_limit
+        self.sound_controller.play_music()
 
     def update(self, commands):
         # handle command
@@ -111,12 +105,15 @@ class EasyGame(PaiaGame):
         # handle collision
         hits = pygame.sprite.spritecollide(self.ball, self.foods, True)
         if hits:
+
             for food in hits:
                 if food.type == FoodTypeEnum.GREEN:
+                    self.sound_controller.play_eating_good()
                     self.score += 1
                     self._create_foods(1, FoodTypeEnum.GREEN)
 
                 elif food.type == FoodTypeEnum.RED:
+                    self.sound_controller.play_eating_bad()
                     self._create_foods(1, FoodTypeEnum.RED)
                     self.score -= 1
         # self._timer = round(time.time() - self._begin_time, 3)

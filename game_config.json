@@ -82,7 +82,18 @@
       "min": -1,
       "max": 5,
       "default": "-1",
-      "help": "選定內建關卡，請注意，使用此設定將會覆蓋掉其他設定，預設為 -1 不選擇任何關卡。"
+      "help": "選定內建關卡，請注意，使用此設定將會覆蓋掉其他關卡設定，預設為 -1 不選擇任何關卡。"
+    },
+    {
+      "name": "sound",
+      "verbose": "遊戲音效",
+      "type": "str",
+      "choices": [
+        "on",
+        "off"
+      ],
+      "help": "'on' can turn on the sound.",
+      "default": "on"
     }
   ]
 }
