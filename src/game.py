@@ -1,7 +1,6 @@
 import copy
 import json
 import os.path
-from os import path
 
 import pygame
 
@@ -9,16 +8,10 @@ from mlgame.game.paia_game import PaiaGame, GameResultState, GameStatus
 from mlgame.utils.enum import get_ai_name
 from mlgame.view.decorator import check_game_progress, check_game_result
 from mlgame.view.view_model import *
-from .enums import FoodTypeEnum
+from .env import *
+from .env import FoodTypeEnum
 from .game_object import Ball, Food
-
-BG_COLOR = "#111111"
-PG_COLOR = "#B3E5FC"
-
-WIDTH = 800
-HEIGHT = 600
-ASSET_PATH = path.join(path.dirname(__file__), "../asset")
-LEVEL_PATH = path.join(path.dirname(__file__), "../levels")
+from .sound_controller import SoundController
 
 
 class EasyGame(PaiaGame):
@@ -30,18 +23,25 @@ class EasyGame(PaiaGame):
             self, time_to_play, score_to_pass, green_food_count, red_food_count,
             playground_size: list,
             level: int = -1,
-            # level_file,
+            level_file: str = None,
+            sound: str = "off",
             *args, **kwargs):
         super().__init__(user_num=1)
 
         self.game_result_state = GameResultState.FAIL
         self.scene = Scene(width=WIDTH, height=HEIGHT, color=BG_COLOR, bias_x=0, bias_y=0)
         self._level = level
-        if level != -1:
-
-            self.set_game_params_by_level(level)
+        self._level_file = level_file
+        if self._level_file is not None or level == "":
+            # set by injected file
+            self.set_game_params_by_file(self._level_file)
+            pass
+        elif self._level != -1:
+            # set by level number
+            self.set_game_params_by_level(self._level)
             pass
         else:
+            # set by game params
             self._playground_w = int(playground_size[0])
             self._playground_h = int(playground_size[1])
             self.playground = pygame.Rect(
@@ -56,22 +56,29 @@ class EasyGame(PaiaGame):
             self.playground.center = (WIDTH / 2, HEIGHT / 2)
 
         self.foods = pygame.sprite.Group()
+        self.sound_controller = SoundController(sound)
         self.init_game()
 
     def set_game_params_by_level(self, level):
-        level_file_path =os.path.join(LEVEL_PATH, f"{level:03d}.json")
-        if os.path.exists(level_file_path):
-            # If the file exists, load parameters from the file
+        level_file_path = os.path.join(LEVEL_PATH, f"{level:03d}.json")
+        self.set_game_params_by_file(level_file_path)
+
+    def set_game_params_by_file(self, level_file_path: str):
+        try:
             with open(level_file_path) as f:
                 game_params = json.load(f)
-        else:
+            self._set_game_params(game_params)
+        except:
             # If the file doesn't exist, use default parameters
-
+            print("此關卡檔案不存在，遊戲將會會自動使用第一關檔案 001.json。")
+            print("This level file is not existed , game will load 001.json automatically.")
             with open(os.path.join(LEVEL_PATH, "001.json")) as f:
                 game_params = json.load(f)
-                self._level=1
+                self._level = 1
+                self._level_file=None
+            self._set_game_params(game_params)
 
-
+    def _set_game_params(self, game_params):
         self._playground_w = int(game_params["playground_size"][0])
         self._playground_h = int(game_params["playground_size"][1])
         self.playground = pygame.Rect(
@@ -85,7 +92,6 @@ class EasyGame(PaiaGame):
         self._frame_limit = int(game_params["time_to_play"])
         self.playground.center = (WIDTH / 2, HEIGHT / 2)
 
-
     def init_game(self):
         self.ball = Ball()
         self.foods.empty()
@@ -94,6 +100,7 @@ class EasyGame(PaiaGame):
         self._create_foods(self._red_food_count, FoodTypeEnum.RED)
         self.frame_count = 0
         self._frame_count_down = self._frame_limit
+        self.sound_controller.play_music()
 
     def update(self, commands):
         # handle command
@@ -111,12 +118,15 @@ class EasyGame(PaiaGame):
         # handle collision
         hits = pygame.sprite.spritecollide(self.ball, self.foods, True)
         if hits:
+
             for food in hits:
                 if food.type == FoodTypeEnum.GREEN:
+                    self.sound_controller.play_eating_good()
                     self.score += 1
                     self._create_foods(1, FoodTypeEnum.GREEN)
 
                 elif food.type == FoodTypeEnum.RED:
+                    self.sound_controller.play_eating_bad()
                     self._create_foods(1, FoodTypeEnum.RED)
                     self.score -= 1
         # self._timer = round(time.time() - self._begin_time, 3)
@@ -155,14 +165,20 @@ class EasyGame(PaiaGame):
 
         if self.is_running:
             status = GameStatus.GAME_ALIVE
-        elif self.score > self._score_to_pass:
+        elif self.is_passed:
             status = GameStatus.GAME_PASS
         else:
             status = GameStatus.GAME_OVER
         return status
 
     def reset(self):
-        if self.score > self._score_to_pass and self._level != -1:
+
+        if self.is_passed:
+            self.sound_controller.play_cheer()
+
+        if self._level_file:
+            pass
+        elif self.is_passed and self._level != -1:
             #     win and use level will enter next level
             self._level += 1
             self.set_game_params_by_level(self._level)
@@ -170,6 +186,10 @@ class EasyGame(PaiaGame):
         self.init_game()
 
         pass
+
+    @property
+    def is_passed(self):
+        return self.score > self._score_to_pass
 
     @property
     def is_running(self):
@@ -236,7 +256,7 @@ class EasyGame(PaiaGame):
                         "player": get_ai_name(0),
                         "rank": 1,
                         "score": self.score,
-                        "passed": self.score > self._score_to_pass
+                        "passed": self.is_passed
                     }
                 ]
 

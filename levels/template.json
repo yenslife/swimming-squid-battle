@@ -3,8 +3,5 @@
   "playground_size": [
     500,
     200
-  ],
-  "score_to_pass": 20,
-  "green_food_count": 3,
-  "black_food_count": 1
+  ]
 }
