@@ -14,6 +14,21 @@ from .game_object import Ball
 from .sound_controller import SoundController
 
 
+def revise_ball(ball: Ball, playground: pygame.Rect):
+    ball_rect = copy.deepcopy(ball.rect)
+    if ball_rect.left < playground.left:
+        ball_rect.left = playground.left
+    elif ball_rect.right > playground.right:
+        ball_rect.right = playground.right
+
+    if ball_rect.top < playground.top:
+        ball_rect.top = playground.top
+    elif ball_rect.bottom > playground.bottom:
+        ball_rect.bottom = playground.bottom
+    ball.rect = ball_rect
+    pass
+
+
 class EasyGame(PaiaGame):
     """
     This is a Interface of a game
@@ -21,7 +36,7 @@ class EasyGame(PaiaGame):
 
     def __init__(
             self,
-            level: int = -1,
+            level: int = 1,
             level_file: str = None,
             sound: str = "off",
             *args, **kwargs):
@@ -38,12 +53,9 @@ class EasyGame(PaiaGame):
             # set by injected file
             self._init_game_by_file(self._level_file)
             pass
-        elif self._level != -1:
-            # set by level number
-            self._init_game_by_level(self._level)
-            pass
+
         else:
-            self._init_game_by_level(1)
+            self._init_game_by_level(self._level)
 
     def _init_game_by_level(self, level: int):
         level_file_path = os.path.join(LEVEL_PATH, f"{level:03d}.json")
@@ -104,7 +116,7 @@ class EasyGame(PaiaGame):
             action = "NONE"
 
         self.ball.update(action)
-        self.revise_ball(self.ball, self.playground)
+        revise_ball(self.ball, self.playground)
         # update sprite
         self.foods.update()
 
@@ -281,18 +293,4 @@ class EasyGame(PaiaGame):
             food = FOOD_TYPE(self.foods)
             food.rect.centerx = random.randint(self.playground.left, self.playground.right)
             food.rect.centery = random.randint(self.playground.top, self.playground.bottom)
-        pass
-
-    def revise_ball(self, ball: Ball, playground: pygame.Rect):
-        ball_rect = copy.deepcopy(ball.rect)
-        if ball_rect.left < playground.left:
-            ball_rect.left = playground.left
-        elif ball_rect.right > playground.right:
-            ball_rect.right = playground.right
-
-        if ball_rect.top < playground.top:
-            ball_rect.top = playground.top
-        elif ball_rect.bottom > playground.bottom:
-            ball_rect.bottom = playground.bottom
-        ball.rect = ball_rect
         pass
