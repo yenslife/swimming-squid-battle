@@ -5,12 +5,12 @@ from mlgame.view.view_model import create_rect_view_data
 
 
 class Food(pygame.sprite.Sprite):
-    def __init__(self, group, type: FoodTypeEnum):
+    def __init__(self, group):
         pygame.sprite.Sprite.__init__(self, group)
         self.image = pygame.Surface([8, 8])
-        self.type = type
+        self.type = None
         self.score = 0
-        self.color = FOOD_COLOR_MAP[type]
+        self.color = None
 
         self.rect = self.image.get_rect()
         self.angle = 0
@@ -28,3 +28,25 @@ class Food(pygame.sprite.Sprite):
             self.rect.height,
             self.color
         )
+
+
+class GoodFoodLv1(Food):
+    def __init__(self, group):
+        super().__init__(group)
+        self.image = pygame.Surface([8, 8])
+        self.type = FoodTypeEnum.GOOD_1
+        self.color = FOOD_COLOR_MAP[self.type]
+        self.score = 1
+        self.rect = self.image.get_rect()
+        self.angle = 0
+
+
+class BadFoodLv1(Food):
+    def __init__(self, group):
+        super().__init__(group)
+        self.image = pygame.Surface([8, 8])
+        self.type = FoodTypeEnum.BAD_1
+        self.color = FOOD_COLOR_MAP[self.type]
+        self.score = -1
+        self.rect = self.image.get_rect()
+        self.angle = 0

@@ -17,11 +17,21 @@ BALL_W = 30
 
 # food
 class FoodTypeEnum(StringEnum):
-    # TODO add good_lv1~good_lv3
-    GREEN = auto()
-    RED = auto()
-FOOD_COLOR_MAP = {FoodTypeEnum.GREEN: "#009688",
-                  FoodTypeEnum.RED: "#FF1744"}
+    GOOD_1 = auto()
+    GOOD_2 = auto()
+    GOOD_3 = auto()
+    BAD_1 = auto()
+    BAD_2 = auto()
+    BAD_3 = auto()
+
+FOOD_COLOR_MAP = {
+    FoodTypeEnum.GOOD_1: "#009688",
+    FoodTypeEnum.GOOD_2: "#009688",
+    FoodTypeEnum.GOOD_3: "#009688",
+    FoodTypeEnum.BAD_1: "#FF1744",
+    FoodTypeEnum.BAD_2: "#FF1744",
+    FoodTypeEnum.BAD_3: "#FF1744"
+}
 
 # path of assets
 ASSET_PATH = path.join(path.dirname(__file__), "..", "asset")

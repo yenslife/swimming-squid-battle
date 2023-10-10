@@ -9,9 +9,8 @@ from mlgame.utils.enum import get_ai_name
 from mlgame.view.decorator import check_game_progress, check_game_result
 from mlgame.view.view_model import *
 from .env import *
-from .env import FoodTypeEnum
+from .foods import GoodFoodLv1, BadFoodLv1
 from .game_object import Ball
-from .foods import Food
 from .sound_controller import SoundController
 
 
@@ -47,7 +46,7 @@ class EasyGame(PaiaGame):
         self.sound_controller = SoundController(sound)
         self._init_game()
 
-    def set_game_params_by_level(self, level:int):
+    def set_game_params_by_level(self, level: int):
         level_file_path = os.path.join(LEVEL_PATH, f"{level:03d}.json")
         self.set_game_params_by_file(level_file_path)
 
@@ -63,7 +62,7 @@ class EasyGame(PaiaGame):
             with open(os.path.join(LEVEL_PATH, "001.json")) as f:
                 game_params = json.load(f)
                 self._level = 1
-                self._level_file=None
+                self._level_file = None
             self._set_game_params(game_params)
 
     def _set_game_params(self, game_params):
@@ -84,8 +83,8 @@ class EasyGame(PaiaGame):
         self.ball = Ball()
         self.foods.empty()
         self.score = 0
-        self._create_foods(self._green_food_count, FoodTypeEnum.GREEN)
-        self._create_foods(self._red_food_count, FoodTypeEnum.RED)
+        self._create_foods(GoodFoodLv1, self._green_food_count)
+        self._create_foods(BadFoodLv1, self._red_food_count)
         self.frame_count = 0
         self._frame_count_down = self._frame_limit
         self.sound_controller.play_music()
@@ -119,16 +118,13 @@ class EasyGame(PaiaGame):
         hits = pygame.sprite.spritecollide(self.ball, self.foods, True)
         if hits:
             for food in hits:
-                self.score+= food.score
+                self.score += food.score
+                self._create_foods(food.__class__, 1)
                 # TODO add food score to function
-                if food.type == FoodTypeEnum.GREEN:
+                if isinstance(food, (GoodFoodLv1,)):
                     self.sound_controller.play_eating_good()
-                    self._create_foods(1, FoodTypeEnum.GREEN)
-
-                elif food.type == FoodTypeEnum.RED:
+                elif isinstance(food, (BadFoodLv1,)):
                     self.sound_controller.play_eating_bad()
-                    self._create_foods(1, FoodTypeEnum.RED)
-
 
     def get_data_from_game_to_player(self):
         """
@@ -140,7 +136,7 @@ class EasyGame(PaiaGame):
         for food in self.foods:
             # TODO add good food and bad food
 
-            foods_data.append({"x": food.rect.x, "y": food.rect.y,"type":food.type,"score":food.score})
+            foods_data.append({"x": food.rect.x, "y": food.rect.y, "type": food.type, "score": food.score})
         data_to_1p = {
             "frame": self.frame_count,
             "ball_x": self.ball.rect.centerx,
@@ -193,7 +189,6 @@ class EasyGame(PaiaGame):
         """
         Get the initial scene and object information for drawing on the web
         """
-        # TODO add music or sound
         # bg_path = path.join(ASSET_PATH, "img/background.jpg")
         # background = create_asset_init_data(
         #     "background", WIDTH, HEIGHT, bg_path,
@@ -274,11 +269,10 @@ class EasyGame(PaiaGame):
             cmd_1p.append("NONE")
         return {get_ai_name(0): cmd_1p}
 
-    def _create_foods(self, count: int = 5, type: FoodTypeEnum = FoodTypeEnum.GREEN):
+    def _create_foods(self, FOOD_TYPE, count: int = 5):
         for i in range(count):
             # add food to group
-            food = Food(self.foods, type)
-
+            food = FOOD_TYPE(self.foods)
             food.rect.centerx = random.randint(self.playground.left, self.playground.right)
             food.rect.centery = random.randint(self.playground.top, self.playground.bottom)
         pass
