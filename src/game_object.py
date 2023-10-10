@@ -1,6 +1,7 @@
 import pygame.sprite
 
-from games.easy_game.src.env import FoodTypeEnum, FOOD_COLOR_MAP, BALL_COLOR, BALL_VEL, BALL_H, BALL_W
+from games.easy_game.src.env import BALL_COLOR, BALL_VEL, BALL_H, BALL_W
+from games.easy_game.src.foods import Food
 from mlgame.view.view_model import create_rect_view_data
 
 
@@ -44,26 +45,3 @@ class Ball(pygame.sprite.Sprite):
         )
 
 
-class Food(pygame.sprite.Sprite):
-    def __init__(self, group, type: FoodTypeEnum):
-        pygame.sprite.Sprite.__init__(self, group)
-        self.image = pygame.Surface([8, 8])
-        self.type = type
-        self.color = FOOD_COLOR_MAP[type]
-
-        self.rect = self.image.get_rect()
-        self.angle = 0
-
-    def update(self) -> None:
-        pass
-
-    @property
-    def game_object_data(self):
-        return create_rect_view_data(
-            "food",
-            self.rect.x,
-            self.rect.y,
-            self.rect.width,
-            self.rect.height,
-            self.color
-        )

@@ -13,6 +13,7 @@
         ["scene_info['ball_y']", "y coordinate of ball", "球的 y 座標"],
         ["scene_info['score']", "score", "目前的分數"],
         ["scene_info['foods']", "list of foods positions", "點點的位置清單"],
+        ["scene_info['score_to_pass']", "the score for next level", "通關分數"],
         ["scene_info", "dictionary of all information", "包含所有資訊的字典"]
     ],
     "CONSTANT": [
@@ -22,8 +23,9 @@
         [600, "bottom boundary", "下邊界"],
         [30, "ball width", "球身的寬度"],
         [30, "ball height", "球身的高度"],
-        [8, "food width", "食物的寬度"],
-        [8, "food height", "食物的高度"]
+        [8, "food lv1 size", "等級一食物的寬高度"],
+        [12, "food lv2 size", "等級二食物的高度"],
+        [16, "food lv3 size", "等級三食物的高度"]
     ],
     "ACTION": [
         ["['UP']", "moving up", "向上移動"],

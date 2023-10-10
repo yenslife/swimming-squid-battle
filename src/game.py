@@ -9,9 +9,24 @@ from mlgame.utils.enum import get_ai_name
 from mlgame.view.decorator import check_game_progress, check_game_result
 from mlgame.view.view_model import *
 from .env import *
-from .env import FoodTypeEnum
-from .game_object import Ball, Food
+from .foods import *
+from .game_object import Ball
 from .sound_controller import SoundController
+
+
+def revise_ball(ball: Ball, playground: pygame.Rect):
+    ball_rect = copy.deepcopy(ball.rect)
+    if ball_rect.left < playground.left:
+        ball_rect.left = playground.left
+    elif ball_rect.right > playground.right:
+        ball_rect.right = playground.right
+
+    if ball_rect.top < playground.top:
+        ball_rect.top = playground.top
+    elif ball_rect.bottom > playground.bottom:
+        ball_rect.bottom = playground.bottom
+    ball.rect = ball_rect
+    pass
 
 
 class EasyGame(PaiaGame):
@@ -20,54 +35,36 @@ class EasyGame(PaiaGame):
     """
 
     def __init__(
-            self, time_to_play, score_to_pass, green_food_count, red_food_count,
-            playground_size: list,
-            level: int = -1,
+            self,
+            level: int = 1,
             level_file: str = None,
             sound: str = "off",
             *args, **kwargs):
         super().__init__(user_num=1)
-
+        # TODO reduce game config and use level file
         self.game_result_state = GameResultState.FAIL
         self.scene = Scene(width=WIDTH, height=HEIGHT, color=BG_COLOR, bias_x=0, bias_y=0)
         self._level = level
         self._level_file = level_file
-        if self._level_file is not None or level == "":
-            # set by injected file
-            self.set_game_params_by_file(self._level_file)
-            pass
-        elif self._level != -1:
-            # set by level number
-            self.set_game_params_by_level(self._level)
-            pass
-        else:
-            # set by game params
-            self._playground_w = int(playground_size[0])
-            self._playground_h = int(playground_size[1])
-            self.playground = pygame.Rect(
-                0, 0,
-                self._playground_w,
-                self._playground_h
-            )
-            self._green_food_count = green_food_count
-            self._red_food_count = red_food_count
-            self._score_to_pass = score_to_pass
-            self._frame_limit = time_to_play
-            self.playground.center = (WIDTH / 2, HEIGHT / 2)
-
         self.foods = pygame.sprite.Group()
         self.sound_controller = SoundController(sound)
-        self.init_game()
 
-    def set_game_params_by_level(self, level):
+        if path.isfile(self._level_file) or self._level_file == "":
+            # set by injected file
+            self._init_game_by_file(self._level_file)
+            pass
+
+        else:
+            self._init_game_by_level(self._level)
+
+    def _init_game_by_level(self, level: int):
         level_file_path = os.path.join(LEVEL_PATH, f"{level:03d}.json")
-        self.set_game_params_by_file(level_file_path)
+        self._init_game_by_file(level_file_path)
 
-    def set_game_params_by_file(self, level_file_path: str):
+    def _init_game_by_file(self, level_file_path: str):
         try:
             with open(level_file_path) as f:
                 game_params = json.load(f)
-            self._set_game_params(game_params)
         except:
             # If the file doesn't exist, use default parameters
             print("此關卡檔案不存在，遊戲將會會自動使用第一關檔案 001.json。")
@@ -75,32 +72,40 @@ class EasyGame(PaiaGame):
             with open(os.path.join(LEVEL_PATH, "001.json")) as f:
                 game_params = json.load(f)
                 self._level = 1
-                self._level_file=None
-            self._set_game_params(game_params)
+                self._level_file = None
+        finally:
+            # set game params
+            self._playground_w = int(game_params["playground_size"][0])
+            self._playground_h = int(game_params["playground_size"][1])
+            self.playground = pygame.Rect(
+                0, 0,
+                self._playground_w,
+                self._playground_h
+            )
+            self._green_food_count = game_params["green_food_count"]
+            self._red_food_count = game_params["black_food_count"]
+            self._score_to_pass = int(game_params["score_to_pass"])
+            self._frame_limit = int(game_params["time_to_play"])
+            self.playground.center = (WIDTH / 2, HEIGHT / 2)
 
-    def _set_game_params(self, game_params):
-        self._playground_w = int(game_params["playground_size"][0])
-        self._playground_h = int(game_params["playground_size"][1])
-        self.playground = pygame.Rect(
-            0, 0,
-            self._playground_w,
-            self._playground_h
-        )
-        self._green_food_count = int(game_params["green_food_count"])
-        self._red_food_count = int(game_params["black_food_count"])
-        self._score_to_pass = int(game_params["score_to_pass"])
-        self._frame_limit = int(game_params["time_to_play"])
-        self.playground.center = (WIDTH / 2, HEIGHT / 2)
+            # init game
+            self.ball = Ball()
+            self.foods.empty()
+            self.score = 0
 
-    def init_game(self):
-        self.ball = Ball()
-        self.foods.empty()
-        self.score = 0
-        self._create_foods(self._green_food_count, FoodTypeEnum.GREEN)
-        self._create_foods(self._red_food_count, FoodTypeEnum.RED)
-        self.frame_count = 0
-        self._frame_count_down = self._frame_limit
-        self.sound_controller.play_music()
+            # todo validate food count
+            self._create_foods(GoodFoodLv1, self._green_food_count[0])
+            self._create_foods(GoodFoodLv2, self._green_food_count[1])
+            self._create_foods(GoodFoodLv3, self._green_food_count[2])
+            self._create_foods(BadFoodLv1, self._red_food_count[0])
+            self._create_foods(BadFoodLv2, self._red_food_count[1])
+            self._create_foods(BadFoodLv3, self._red_food_count[2])
+
+            self.frame_count = 0
+            self._frame_count_down = self._frame_limit
+            self.sound_controller.play_music()
+
+
 
     def update(self, commands):
         # handle command
@@ -111,24 +116,13 @@ class EasyGame(PaiaGame):
             action = "NONE"
 
         self.ball.update(action)
-        self.revise_ball(self.ball, self.playground)
+        revise_ball(self.ball, self.playground)
         # update sprite
         self.foods.update()
 
         # handle collision
-        hits = pygame.sprite.spritecollide(self.ball, self.foods, True)
-        if hits:
 
-            for food in hits:
-                if food.type == FoodTypeEnum.GREEN:
-                    self.sound_controller.play_eating_good()
-                    self.score += 1
-                    self._create_foods(1, FoodTypeEnum.GREEN)
-
-                elif food.type == FoodTypeEnum.RED:
-                    self.sound_controller.play_eating_bad()
-                    self._create_foods(1, FoodTypeEnum.RED)
-                    self.score -= 1
+        self._check_foods_collision()
         # self._timer = round(time.time() - self._begin_time, 3)
 
         self.frame_count += 1
@@ -138,6 +132,17 @@ class EasyGame(PaiaGame):
         if not self.is_running:
             return "RESET"
 
+    def _check_foods_collision(self):
+        hits = pygame.sprite.spritecollide(self.ball, self.foods, True)
+        if hits:
+            for food in hits:
+                self.score += food.score
+                self._create_foods(food.__class__, 1)
+                if isinstance(food, (GoodFoodLv1,GoodFoodLv2,GoodFoodLv3,)):
+                    self.sound_controller.play_eating_good()
+                elif isinstance(food, (BadFoodLv1,BadFoodLv2,BadFoodLv3,)):
+                    self.sound_controller.play_eating_bad()
+
     def get_data_from_game_to_player(self):
         """
         send something to game AI
@@ -146,13 +151,16 @@ class EasyGame(PaiaGame):
         to_players_data = {}
         foods_data = []
         for food in self.foods:
-            foods_data.append({"x": food.rect.x, "y": food.rect.y})
+            # TODO add good food and bad food
+
+            foods_data.append({"x": food.rect.x, "y": food.rect.y, "type": food.type, "score": food.score})
         data_to_1p = {
             "frame": self.frame_count,
             "ball_x": self.ball.rect.centerx,
             "ball_y": self.ball.rect.centery,
             "foods": foods_data,
             "score": self.score,
+            "score_to_pass":self._score_to_pass,
             "status": self.get_game_status()
         }
 
@@ -181,9 +189,9 @@ class EasyGame(PaiaGame):
         elif self.is_passed and self._level != -1:
             #     win and use level will enter next level
             self._level += 1
-            self.set_game_params_by_level(self._level)
+            self._init_game_by_level(self._level)
 
-        self.init_game()
+        self._init_game()
 
         pass
 
@@ -199,7 +207,6 @@ class EasyGame(PaiaGame):
         """
         Get the initial scene and object information for drawing on the web
         """
-        # TODO add music or sound
         # bg_path = path.join(ASSET_PATH, "img/background.jpg")
         # background = create_asset_init_data(
         #     "background", WIDTH, HEIGHT, bg_path,
@@ -280,25 +287,10 @@ class EasyGame(PaiaGame):
             cmd_1p.append("NONE")
         return {get_ai_name(0): cmd_1p}
 
-    def _create_foods(self, count: int = 5, type: FoodTypeEnum = FoodTypeEnum.GREEN):
+    def _create_foods(self, FOOD_TYPE, count: int = 5):
         for i in range(count):
             # add food to group
-            food = Food(self.foods, type)
-
+            food = FOOD_TYPE(self.foods)
             food.rect.centerx = random.randint(self.playground.left, self.playground.right)
             food.rect.centery = random.randint(self.playground.top, self.playground.bottom)
-        pass
-
-    def revise_ball(self, ball: Ball, playground: pygame.Rect):
-        ball_rect = copy.deepcopy(ball.rect)
-        if ball_rect.left < playground.left:
-            ball_rect.left = playground.left
-        elif ball_rect.right > playground.right:
-            ball_rect.right = playground.right
-
-        if ball_rect.top < playground.top:
-            ball_rect.top = playground.top
-        elif ball_rect.bottom > playground.bottom:
-            ball_rect.bottom = playground.bottom
-        ball.rect = ball_rect
         pass
