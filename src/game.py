@@ -149,6 +149,7 @@ class EasyGame(PaiaGame):
             "ball_y": self.ball.rect.centery,
             "foods": foods_data,
             "score": self.score,
+            "score_to_pass":self._score_to_pass,
             "status": self.get_game_status()
         }
 

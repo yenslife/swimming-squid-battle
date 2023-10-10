@@ -5,9 +5,7 @@
     200
   ],
   "score_to_pass": 10,
-  "green_food_count": 3,
-  "black_food_count": 0,
-  "green_food_list": [3,2,1],
-  "black_food_list": [5,2,0]
+  "green_food_count": [3,0,0],
+  "black_food_count": [0,0,0]
 
 }
