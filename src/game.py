@@ -31,30 +31,28 @@ class EasyGame(PaiaGame):
         self.scene = Scene(width=WIDTH, height=HEIGHT, color=BG_COLOR, bias_x=0, bias_y=0)
         self._level = level
         self._level_file = level_file
+        self.foods = pygame.sprite.Group()
+        self.sound_controller = SoundController(sound)
+
         if path.isfile(self._level_file) or self._level_file == "":
             # set by injected file
-            self.set_game_params_by_file(self._level_file)
+            self._init_game_by_file(self._level_file)
             pass
         elif self._level != -1:
             # set by level number
-            self.set_game_params_by_level(self._level)
+            self._init_game_by_level(self._level)
             pass
         else:
-            self.set_game_params_by_level(1)
+            self._init_game_by_level(1)
 
-        self.foods = pygame.sprite.Group()
-        self.sound_controller = SoundController(sound)
-        self._init_game()
-
-    def set_game_params_by_level(self, level: int):
+    def _init_game_by_level(self, level: int):
         level_file_path = os.path.join(LEVEL_PATH, f"{level:03d}.json")
-        self.set_game_params_by_file(level_file_path)
+        self._init_game_by_file(level_file_path)
 
-    def set_game_params_by_file(self, level_file_path: str):
+    def _init_game_by_file(self, level_file_path: str):
         try:
             with open(level_file_path) as f:
                 game_params = json.load(f)
-            self._set_game_params(game_params)
         except:
             # If the file doesn't exist, use default parameters
             print("此關卡檔案不存在，遊戲將會會自動使用第一關檔案 001.json。")
@@ -63,31 +61,39 @@ class EasyGame(PaiaGame):
                 game_params = json.load(f)
                 self._level = 1
                 self._level_file = None
-            self._set_game_params(game_params)
+        finally:
+            # set game params
+            self._playground_w = int(game_params["playground_size"][0])
+            self._playground_h = int(game_params["playground_size"][1])
+            self.playground = pygame.Rect(
+                0, 0,
+                self._playground_w,
+                self._playground_h
+            )
+            self._green_food_count = game_params["green_food_count"]
+            self._red_food_count = game_params["black_food_count"]
+            self._score_to_pass = int(game_params["score_to_pass"])
+            self._frame_limit = int(game_params["time_to_play"])
+            self.playground.center = (WIDTH / 2, HEIGHT / 2)
 
-    def _set_game_params(self, game_params):
-        self._playground_w = int(game_params["playground_size"][0])
-        self._playground_h = int(game_params["playground_size"][1])
-        self.playground = pygame.Rect(
-            0, 0,
-            self._playground_w,
-            self._playground_h
-        )
-        self._green_food_count = int(game_params["green_food_count"])
-        self._red_food_count = int(game_params["black_food_count"])
-        self._score_to_pass = int(game_params["score_to_pass"])
-        self._frame_limit = int(game_params["time_to_play"])
-        self.playground.center = (WIDTH / 2, HEIGHT / 2)
+            # init game
+            self.ball = Ball()
+            self.foods.empty()
+            self.score = 0
 
-    def _init_game(self):
-        self.ball = Ball()
-        self.foods.empty()
-        self.score = 0
-        self._create_foods(GoodFoodLv1, self._green_food_count)
-        self._create_foods(BadFoodLv1, self._red_food_count)
-        self.frame_count = 0
-        self._frame_count_down = self._frame_limit
-        self.sound_controller.play_music()
+            # todo validate food count
+            self._create_foods(GoodFoodLv1, self._green_food_count[0])
+            # self._create_foods(GoodFoodLv1, self._green_food_count[1])
+            # self._create_foods(GoodFoodLv1, self._green_food_count[2])
+            self._create_foods(BadFoodLv1, self._red_food_count[0])
+            # self._create_foods(BadFoodLv1, self._red_food_count[1])
+            # self._create_foods(BadFoodLv1, self._red_food_count[2])
+
+            self.frame_count = 0
+            self._frame_count_down = self._frame_limit
+            self.sound_controller.play_music()
+
+
 
     def update(self, commands):
         # handle command
@@ -171,7 +177,7 @@ class EasyGame(PaiaGame):
         elif self.is_passed and self._level != -1:
             #     win and use level will enter next level
             self._level += 1
-            self.set_game_params_by_level(self._level)
+            self._init_game_by_level(self._level)
 
         self._init_game()
 
