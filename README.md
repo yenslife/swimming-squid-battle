@@ -2,7 +2,7 @@
 
 ![easy_game](https://img.shields.io/github/v/tag/PAIA-Playful-AI-Arena/easy_game)
 [![Python 3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/release/python-390/)
-[![MLGame](https://img.shields.io/badge/MLGame->9.5.3-<COLOR>.svg)](https://github.com/PAIA-Playful-AI-Arena/MLGame)
+[![MLGame](https://img.shields.io/badge/MLGame->10.3.2-<COLOR>.svg)](https://github.com/PAIA-Playful-AI-Arena/MLGame)
 [![pygame](https://img.shields.io/badge/pygame-2.0.1-<COLOR>.svg)](https://github.com/pygame/pygame/releases/tag/2.0.1)
 
 
@@ -22,20 +22,11 @@
 ```python
 # main.py 
 game = EasyGame(
-            time_to_play, score_to_pass, 
-            green_food_count, red_food_count,
-            playground_size: list,
-            level: int = -1,
+            level: int = 1,
             level_file: str = None,
             sound: str = "off")
 ```
-
-- `time_to_play`：遊戲執行的終止時間，單位是 frame，也就是遊戲內部更新畫面的次數，每更新一次 frame +1
-- `green_food_count`：遊戲中綠色食物的數量。
-- `red_food_count`：遊戲中紅色食物的數量。
-- `score_to_pass`：遊戲通關的點數，要超過這個分數才算過關。
-- `playground_size`：可移動區域的大小。 使用逗號將數字隔開 `width,height` `100,200` 
-- `level`: 選定內建關卡，請注意，使用此設定將會覆蓋掉上述其他關卡參數設定，預設為 -1 不選擇任何關卡。
+- `level`: 選定內建關卡，預設為 1 選擇第一關。
 - `level_file`: 使用外部檔案作為關卡，請注意，使用此設定將會覆蓋掉關卡編號，並且不會自動進入下一關。
 - `sound`: 音效。
 
@@ -83,10 +74,10 @@ python -m mlgame -i ./ml/ml_play_template.py ./ --time_to_play 1200 --green_food
 import random
 
 class MLPlay:
-    def __init__(self):
+    def __init__(self,ai_name,*args, **kwargs):
         print("Initial ml script")
 
-    def update(self, scene_info: dict):
+    def update(self, scene_info: dict,,*args, **kwargs):
 
         # print("AI received data from game :", scene_info)
 
@@ -114,12 +105,16 @@ class MLPlay:
   "foods": [
     {
       "x": 656,
-      "y": 210
+      "y": 210,
+      "type": "GOOD_1",
+      "score": 1
     },
 ...,
     {
       "x": 371,
-      "y": 217
+      "y": 217,
+      "type": "BAD_1",
+      "score": -1
     }
     
   ],
@@ -131,8 +126,10 @@ class MLPlay:
 - `frame`：遊戲畫面更新的編號
 - `ball_x`：主角方塊的Ｘ座標，表示方塊的左邊座標值。
 - `ball_y`：主角方塊的Ｙ座標，表示方塊的上方座標值。
-- `foods`：食物的清單，清單內每一個物件都是一個食物的左上方座標值
+- `foods`：食物的清單，清單內每一個物件都是一個食物的左上方座標值，也會提供此食物是什麼類型和分數多少。
+  -  `type` 食物類型： `GOOD_1`, `GOOD_2`, `GOOD_3`, `BAD_1`, `BAD_2`, `BAD_3`
 - `score`：目前得到的分數
+- `score_to_pass`：通關分數
 - `status`： 目前遊戲的狀態
     - `GAME_ALIVE`：遊戲進行中
     - `GAME_PASS`：遊戲通關

@@ -1,6 +1,6 @@
 {
   "game_name": "easy_game",
-  "version": "2.2.1-beta",
+  "version": "2.3.1-alpha",
   "url": "https://github.com/PAIA-Playful-AI-Arena/easy_game",
   "description": "這是一個吃東西小遊戲，除了讓你熟習所有基本操作，也是 PAIA 的遊戲教學範例",
   "logo": [
@@ -13,76 +13,13 @@
   },
   "game_params": [
     {
-      "name": "time_to_play",
-      "verbose": "遊戲總幀數",
-      "type": "int",
-      "max": 2000,
-      "min": 600,
-      "default": 600,
-      "help": "set the limit of frame count , actually time will be revised according to your FPS ."
-    },
-    {
-      "name": "green_food_count",
-      "verbose": "綠色食物數量",
-      "type": "int",
-      "choices": [
-        5,
-        10,
-        15,
-        20,
-        25,
-        30,
-        35,
-        40,
-        45,
-        50
-      ],
-      "help": "set the total number of points",
-      "default": 10
-    },
-    {
-      "name": "red_food_count",
-      "verbose": "紅色食物數量",
-      "type": "int",
-      "choices": [
-        5,
-        10,
-        15,
-        20,
-        25,
-        30,
-        35,
-        40,
-        45,
-        50
-      ],
-      "help": "set the total number of points",
-      "default": 10
-    },
-    {
-      "name": "score_to_pass",
-      "verbose": "通關分數",
-      "type": "int",
-      "min": 1,
-      "max": 30,
-      "default": 10,
-      "help": "set the score to win this game "
-    },
-    {
-      "name": "playground_size",
-      "verbose": "場地尺寸",
-      "type": "list",
-      "default": "400,400",
-      "help": "set the size of playground "
-    },
-    {
       "name": "level",
       "verbose": "內建關卡編號",
       "type": "int",
       "min": -1,
-      "max": 5,
-      "default": "-1",
-      "help": "選定內建關卡，請注意，使用此設定將會覆蓋掉其他關卡設定，預設為 -1 不選擇任何關卡。"
+      "max": 100,
+      "default": 1,
+      "help": "選定內建關卡，預設為 1 選擇第一關。"
     },    {
       "name": "level_file",
       "verbose": "匯入關卡檔案",
