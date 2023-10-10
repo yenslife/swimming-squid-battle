@@ -32,6 +32,9 @@ FOOD_COLOR_MAP = {
     FoodTypeEnum.BAD_2: "#FF1744",
     FoodTypeEnum.BAD_3: "#FF1744"
 }
+FOOD_LV1_SIZE = 8
+FOOD_LV2_SIZE = 12
+FOOD_LV3_SIZE = 16
 
 # path of assets
 ASSET_PATH = path.join(path.dirname(__file__), "..", "asset")

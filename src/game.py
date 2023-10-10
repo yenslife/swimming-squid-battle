@@ -9,7 +9,7 @@ from mlgame.utils.enum import get_ai_name
 from mlgame.view.decorator import check_game_progress, check_game_result
 from mlgame.view.view_model import *
 from .env import *
-from .foods import GoodFoodLv1, BadFoodLv1
+from .foods import *
 from .game_object import Ball
 from .sound_controller import SoundController
 
@@ -83,11 +83,11 @@ class EasyGame(PaiaGame):
 
             # todo validate food count
             self._create_foods(GoodFoodLv1, self._green_food_count[0])
-            # self._create_foods(GoodFoodLv1, self._green_food_count[1])
-            # self._create_foods(GoodFoodLv1, self._green_food_count[2])
+            self._create_foods(GoodFoodLv2, self._green_food_count[1])
+            self._create_foods(GoodFoodLv3, self._green_food_count[2])
             self._create_foods(BadFoodLv1, self._red_food_count[0])
-            # self._create_foods(BadFoodLv1, self._red_food_count[1])
-            # self._create_foods(BadFoodLv1, self._red_food_count[2])
+            self._create_foods(BadFoodLv2, self._red_food_count[1])
+            self._create_foods(BadFoodLv3, self._red_food_count[2])
 
             self.frame_count = 0
             self._frame_count_down = self._frame_limit
@@ -126,10 +126,9 @@ class EasyGame(PaiaGame):
             for food in hits:
                 self.score += food.score
                 self._create_foods(food.__class__, 1)
-                # TODO add food score to function
-                if isinstance(food, (GoodFoodLv1,)):
+                if isinstance(food, (GoodFoodLv1,GoodFoodLv2,GoodFoodLv3,)):
                     self.sound_controller.play_eating_good()
-                elif isinstance(food, (BadFoodLv1,)):
+                elif isinstance(food, (BadFoodLv1,BadFoodLv2,BadFoodLv3,)):
                     self.sound_controller.play_eating_bad()
 
     def get_data_from_game_to_player(self):
