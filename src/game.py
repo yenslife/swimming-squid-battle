@@ -20,19 +20,18 @@ class EasyGame(PaiaGame):
     """
 
     def __init__(
-            self, time_to_play, score_to_pass, green_food_count, red_food_count,
-            playground_size: list,
+            self,
             level: int = -1,
             level_file: str = None,
             sound: str = "off",
             *args, **kwargs):
         super().__init__(user_num=1)
-
+        # TODO reduce game config and use level file
         self.game_result_state = GameResultState.FAIL
         self.scene = Scene(width=WIDTH, height=HEIGHT, color=BG_COLOR, bias_x=0, bias_y=0)
         self._level = level
         self._level_file = level_file
-        if self._level_file is not None or level == "":
+        if path.isfile(self._level_file) or self._level_file == "":
             # set by injected file
             self.set_game_params_by_file(self._level_file)
             pass
@@ -41,25 +40,13 @@ class EasyGame(PaiaGame):
             self.set_game_params_by_level(self._level)
             pass
         else:
-            # set by game params
-            self._playground_w = int(playground_size[0])
-            self._playground_h = int(playground_size[1])
-            self.playground = pygame.Rect(
-                0, 0,
-                self._playground_w,
-                self._playground_h
-            )
-            self._green_food_count = green_food_count
-            self._red_food_count = red_food_count
-            self._score_to_pass = score_to_pass
-            self._frame_limit = time_to_play
-            self.playground.center = (WIDTH / 2, HEIGHT / 2)
+            self.set_game_params_by_level(1)
 
         self.foods = pygame.sprite.Group()
         self.sound_controller = SoundController(sound)
-        self.init_game()
+        self._init_game()
 
-    def set_game_params_by_level(self, level):
+    def set_game_params_by_level(self, level:int):
         level_file_path = os.path.join(LEVEL_PATH, f"{level:03d}.json")
         self.set_game_params_by_file(level_file_path)
 
@@ -92,7 +79,7 @@ class EasyGame(PaiaGame):
         self._frame_limit = int(game_params["time_to_play"])
         self.playground.center = (WIDTH / 2, HEIGHT / 2)
 
-    def init_game(self):
+    def _init_game(self):
         self.ball = Ball()
         self.foods.empty()
         self.score = 0
@@ -120,6 +107,7 @@ class EasyGame(PaiaGame):
         if hits:
 
             for food in hits:
+                # TODO add food score to function
                 if food.type == FoodTypeEnum.GREEN:
                     self.sound_controller.play_eating_good()
                     self.score += 1
@@ -146,7 +134,9 @@ class EasyGame(PaiaGame):
         to_players_data = {}
         foods_data = []
         for food in self.foods:
-            foods_data.append({"x": food.rect.x, "y": food.rect.y})
+            # TODO add good food and bad food
+
+            foods_data.append({"x": food.rect.x, "y": food.rect.y,"type":food.type})
         data_to_1p = {
             "frame": self.frame_count,
             "ball_x": self.ball.rect.centerx,
@@ -183,7 +173,7 @@ class EasyGame(PaiaGame):
             self._level += 1
             self.set_game_params_by_level(self._level)
 
-        self.init_game()
+        self._init_game()
 
         pass
 

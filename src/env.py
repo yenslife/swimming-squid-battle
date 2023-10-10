@@ -17,6 +17,7 @@ BALL_W = 30
 
 # food
 class FoodTypeEnum(StringEnum):
+    # TODO add good_lv1~good_lv3
     GREEN = auto()
     RED = auto()
 FOOD_COLOR_MAP = {FoodTypeEnum.GREEN: "#009688",
