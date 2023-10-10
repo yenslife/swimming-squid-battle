@@ -10,7 +10,8 @@ from mlgame.view.decorator import check_game_progress, check_game_result
 from mlgame.view.view_model import *
 from .env import *
 from .env import FoodTypeEnum
-from .game_object import Ball, Food
+from .game_object import Ball
+from .foods import Food
 from .sound_controller import SoundController
 
 
@@ -103,20 +104,8 @@ class EasyGame(PaiaGame):
         self.foods.update()
 
         # handle collision
-        hits = pygame.sprite.spritecollide(self.ball, self.foods, True)
-        if hits:
 
-            for food in hits:
-                # TODO add food score to function
-                if food.type == FoodTypeEnum.GREEN:
-                    self.sound_controller.play_eating_good()
-                    self.score += 1
-                    self._create_foods(1, FoodTypeEnum.GREEN)
-
-                elif food.type == FoodTypeEnum.RED:
-                    self.sound_controller.play_eating_bad()
-                    self._create_foods(1, FoodTypeEnum.RED)
-                    self.score -= 1
+        self._check_foods_collision()
         # self._timer = round(time.time() - self._begin_time, 3)
 
         self.frame_count += 1
@@ -125,6 +114,21 @@ class EasyGame(PaiaGame):
 
         if not self.is_running:
             return "RESET"
+
+    def _check_foods_collision(self):
+        hits = pygame.sprite.spritecollide(self.ball, self.foods, True)
+        if hits:
+            for food in hits:
+                self.score+= food.score
+                # TODO add food score to function
+                if food.type == FoodTypeEnum.GREEN:
+                    self.sound_controller.play_eating_good()
+                    self._create_foods(1, FoodTypeEnum.GREEN)
+
+                elif food.type == FoodTypeEnum.RED:
+                    self.sound_controller.play_eating_bad()
+                    self._create_foods(1, FoodTypeEnum.RED)
+
 
     def get_data_from_game_to_player(self):
         """
@@ -136,7 +140,7 @@ class EasyGame(PaiaGame):
         for food in self.foods:
             # TODO add good food and bad food
 
-            foods_data.append({"x": food.rect.x, "y": food.rect.y,"type":food.type})
+            foods_data.append({"x": food.rect.x, "y": food.rect.y,"type":food.type,"score":food.score})
         data_to_1p = {
             "frame": self.frame_count,
             "ball_x": self.ball.rect.centerx,
