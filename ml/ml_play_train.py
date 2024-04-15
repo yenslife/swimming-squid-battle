@@ -9,7 +9,7 @@ import pygame
 import math
 import pickle
 
-json_file_path = "/Users/mac/ncku/moodle/112-2三下/ML機器學習/swimming-squid-battle/n_3_qtable.json"
+json_file_path = "/Users/mac/ncku/moodle/112-2三下/ML機器學習/swimming-squid-battle/mode_2_qtable.json"
 class MLPlay:
     def __init__(self,ai_name,*args,**kwargs):
         print("Initial ml script")
@@ -80,7 +80,7 @@ class MLPlay:
             y_moved = food[i]['y'] - y
             x_rotated = x_moved * math.cos(math.pi/4) - y_moved * math.sin(math.pi/4) # 逆時針旋轉 45 度
             y_rotated = x_moved * math.sin(math.pi/4) + y_moved * math.cos(math.pi/4)
-            weighted_score = food[i]['score'] + round(1/(food_distance[i]+1) * 20) # 距離越近，分數越高
+            weighted_score = food[i]['score']
             if x_rotated > 0 and y_rotated > 0:
                 score['RIGHT'] += weighted_score
             elif x_rotated > 0 and y_rotated < 0:
@@ -98,7 +98,7 @@ class MLPlay:
         max_direction = random.choice(max_directions) # 隨機選擇一個
 
         # 如果 self.lv > component.lv，則選擇吃 component
-        fuck_score = 20
+        fuck_score = round(35 * (scene_info['self_lv'] - scene_info['opponent_lv']) * 0.8)
         run_away = -100
         # 計算上下左右
         x_diff = scene_info['opponent_x'] - x
@@ -114,22 +114,29 @@ class MLPlay:
                 score['LEFT'] += fuck_score
             elif x_rotated < 0 and y_rotated > 0:
                 score['DOWN'] += fuck_score
-            max_direction = max(score, key=score.get)
-        
-        return score, max_direction
-        
+        return score
     
     def get_action(self, state):
-        max_direction = max(state, key=state.get)
-        max_state = state[max_direction]
-        max_directions = [k for k, v in state.items() if v == max_state]
-        max_direction = random.choice(max_directions) # 隨機選擇一個
-        return [max_direction]
+        if self.qtable.get(str(state)) is None:
+            self.qtable[str(state)] = np.zeros(len(self.state))
+        q_state = self.qtable[str(state)]
+        # find max in q state
+        max_direction = "UP"
+        max_index = np.random.choice(np.flatnonzero(q_state == np.max(q_state)))
+        if max_index == 0:
+            max_direction = "UP"
+        elif max_index == 1:
+            max_direction = "RIGHT"
+        elif max_index == 2:
+            max_direction = "DOWN"
+        elif max_index == 3:
+            max_direction = "LEFT"
+        return [max_direction], max_index
     
     def get_reward(self, scene_info):
-        self.current_reward = scene_info['score'] - self.previous_reward
-        reword = self.current_reward
-        return reword
+        self.current_reward = scene_info['score'] - self.previous_reward - 1
+        reward = self.current_reward
+        return reward
 
     def update(self, scene_info: dict, keyboard:list=[], *args, **kwargs):
         """
@@ -137,22 +144,25 @@ class MLPlay:
         """
         actions = []
 
-        # update Q table
-        reward = self.get_reward(scene_info)  
-
         # get next state and maxQ
-        next_state, maxQ = self.feature_extract(scene_info, mode=1)
+        next_state = self.feature_extract(scene_info, mode=2)
 
         # update Q table
         state_array = np.array(list(self.state.values()))
         next_state_array = np.array(list(next_state.values())) if next_state else np.zeros_like(state_array)  # 將下一個狀態轉換為numpy陣列，如果下一個狀態不存在，則為零
-        Q = self.qtable.get(str(self.state), 0) 
-        max_next_Q = np.max(next_state_array)  # 獲取下一個狀態的最大Q值
-        updated_Q = Q + 0.1 * (reward + 0.9 * max_next_Q - Q)
-        self.qtable[str(self.state)] = updated_Q
+        Q = self.qtable.get(str(self.state), np.zeros(len(self.state))) 
+        max_next_Q_action, action_index = self.get_action(self.state)  # 獲取下一個狀態的最大Q值的行動
+        max_next_Q_value = self.qtable.get(str(next_state), np.zeros(len(self.state)))[action_index]  # 獲取下一個狀態的最大Q值
+        # 更新 Q table
+        reward = self.get_reward(scene_info) + next_state[max_next_Q_action[0]]
+        updated_Q = Q[action_index] + 0.1 * (reward + 0.9 * max_next_Q_value - Q[action_index])
+        self.qtable[str(self.state)][action_index] = updated_Q
+        # print("updated_Q", updated_Q)
+        # print("Q", Q)
 
         # get action
-        actions = self.get_action(next_state) # 這邊要改成 updated_Q
+        actions = self.get_action(next_state)[0]
+        # print("actions", actions)
         self.state = next_state
         self.previous_reward = scene_info['score']
 
