@@ -112,13 +112,18 @@ class MLPlay:
                     return "RBB"
             else:
                 "UP" # 有可能是 NONE，這邊直接用 UP 因為我們比較不希望魷魚掉下去，垃圾是往下掉的
+
+        def quantized_distance_calculator(x, y):
+            distance = abs(x - self_x) + abs(y - self_y)
+            denominator = ((distance / self_vel) * 10 - 5) if ((distance / self_vel) * 10 - 5) != 0 else 1
+            quantized_distance = 1 / denominator
+            return quantized_distance
                 
         for i in range(N):
             food_x = foods[i]["x"]
             food_y = foods[i]["y"]
             food_score = foods[i]["score"]
-            distance = abs(food_x - self_x) + abs(food_y - self_y)
-            quantized_distance = 1 / (distance / self_vel) * 10
+            quantized_distance = quantized_distance_calculator(food_x, food_y)
             direction = calculate_direction(food_x, food_y)
             try:
                 object_position[direction].append(food_score * weight[direction] * quantized_distance)
@@ -131,8 +136,7 @@ class MLPlay:
         opponent_y = scene_info["opponent_y"]
         opponent_lv = scene_info["opponent_lv"]
         attack_score = 10
-        distance = abs(opponent_x - self_x) + abs(opponent_y - self_y)
-        quantized_distance = distance / self_vel
+        quantized_distance = quantized_distance_calculator(opponent_x, opponent_y)
         direction = calculate_direction(opponent_x, opponent_y)
         if opponent_lv < self_lv:
             try: 
